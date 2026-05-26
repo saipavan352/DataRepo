@@ -1,0 +1,2536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Selenium Java Cheatsheet</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:      #0f1117;
+  --surface: #161b26;
+  --card:    #1c2333;
+  --border:  #252f42;
+  --border2: #2d3a52;
+  --text:    #dce4f0;
+  --muted:   #5a6a85;
+  --dim:     #8899b4;
+  --code-bg: #0a0d14;
+  --thead-bg:rgba(0,0,0,0.3);
+  --banner-text: #fff;
+
+  --cyan:    #38bdf8;
+  --green:   #4ade80;
+  --yellow:  #facc15;
+  --orange:  #fb923c;
+  --pink:    #f472b6;
+  --purple:  #a78bfa;
+  --red:     #f87171;
+
+  --kw:  #c792ea;
+  --tp:  #82aaff;
+  --st:  #c3e88d;
+  --cm:  #4b5a72;
+  --mt:  #80cbc4;
+  --nm:  #f78c6c;
+  --cn:  #ffcb6b;
+}
+
+/* ── LIGHT MODE ── */
+body.light {
+  --bg:      #f4f6fb;
+  --surface: #e8ecf4;
+  --card:    #ffffff;
+  --border:  #d0d9eb;
+  --border2: #b8c6de;
+  --text:    #1a2236;
+  --muted:   #7a8fb5;
+  --dim:     #5a6e92;
+  --code-bg: #1e2435;
+  --cyan:    #0284c7;
+  --green:   #16a34a;
+  --yellow:  #ca8a04;
+  --orange:  #ea580c;
+  --pink:    #db2777;
+  --purple:  #7c3aed;
+  --red:     #dc2626;
+}
+body.light header {
+  background: linear-gradient(160deg, #dde5f5 0%, #e8edf8 100%);
+}
+body.light .nav-bar { background: rgba(244,246,251,0.97); }
+body.light pre { background: #1e2435; color: #cdd6f4; }
+body.light .compare-col pre { background: transparent; color: var(--text); }
+body.light .good { background: rgba(22,163,74,.06); }
+body.light .bad  { background: rgba(220,38,38,.06); }
+
+/* ── THEME TOGGLE ── */
+.theme-toggle {
+  position: fixed; top: 14px; right: 18px; z-index: 9999;
+  display: flex; align-items: center; gap: 8px;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 24px; padding: 5px 12px 5px 8px;
+  cursor: pointer; font-size: 12px; font-weight: 600;
+  color: var(--dim); transition: all .2s;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+  user-select: none;
+}
+.theme-toggle:hover { border-color: var(--cyan); color: var(--text); }
+.toggle-track {
+  width: 32px; height: 18px; border-radius: 9px;
+  background: var(--border2); position: relative;
+  transition: background .25s; flex-shrink: 0;
+}
+body.light .toggle-track { background: var(--cyan); }
+.toggle-thumb {
+  width: 12px; height: 12px; border-radius: 50%;
+  background: #fff; position: absolute; top: 3px; left: 3px;
+  transition: left .25s; box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+body.light .toggle-thumb { left: 17px; }
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  font-size: 13.5px;
+  line-height: 1.6;
+  transition: background .25s, color .25s;
+}
+
+/* ── HEADER ── */
+header {
+  background: linear-gradient(160deg, #0d1526 0%, #111827 100%);
+  border-bottom: 1px solid var(--border);
+  padding: 36px 48px 28px;
+  display: flex; align-items: flex-end; justify-content: space-between; gap: 24px;
+  flex-wrap: wrap;
+}
+.header-left {}
+.badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+  background: rgba(56,189,248,0.1); border: 1px solid rgba(56,189,248,0.3);
+  color: var(--cyan); padding: 3px 10px; border-radius: 4px;
+  display: inline-block; margin-bottom: 10px;
+}
+h1 { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; color: #fff; }
+h1 em { color: var(--cyan); font-style: normal; }
+.tagline { color: var(--dim); font-size: 13px; margin-top: 4px; }
+.legend {
+  display: flex; gap: 18px; flex-wrap: wrap; align-items: center;
+  font-size: 11px; font-family: 'JetBrains Mono', monospace;
+}
+.legend-item { display: flex; align-items: center; gap: 5px; color: var(--dim); }
+.dot { width: 8px; height: 8px; border-radius: 2px; }
+
+/* ── NAV ── */
+.nav-bar {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(15,17,23,0.95);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  display: flex; overflow-x: auto;
+  scrollbar-width: none; padding: 0 24px;
+}
+.nav-bar::-webkit-scrollbar { display: none; }
+.nav-bar a {
+  color: var(--muted); text-decoration: none; white-space: nowrap;
+  font-size: 11.5px; font-weight: 600; letter-spacing: 0.5px;
+  padding: 11px 14px; border-bottom: 2px solid transparent;
+  transition: color .15s, border-color .15s;
+}
+.nav-bar a:hover { color: var(--text); }
+.nav-bar a.on { color: var(--cyan); border-bottom-color: var(--cyan); }
+
+/* ── LAYOUT ── */
+main { max-width: 1380px; margin: 0 auto; padding: 32px 24px 80px; }
+
+/* ── SECTION ── */
+.sec { margin-bottom: 56px; }
+.sec-head {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 16px; padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+.sec-icon { font-size: 18px; }
+.sec-title { font-size: 16px; font-weight: 700; color: #fff; }
+.sec-when {
+  margin-left: auto; font-size: 11px; color: var(--dim);
+  font-style: italic; max-width: 420px; text-align: right;
+}
+
+/* ── GRID ── */
+.g2 { display: grid; grid-template-columns: repeat(auto-fill, minmax(420px,1fr)); gap: 14px; }
+.g3 { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px,1fr)); gap: 14px; }
+.g1 { display: grid; grid-template-columns: 1fr; gap: 14px; }
+.g-full { grid-column: 1/-1; }
+
+/* ── CARD ── */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden;
+}
+.card:hover { border-color: var(--border2); }
+
+.card-top {
+  padding: 10px 14px 6px;
+  display: flex; align-items: center; gap: 8px;
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap; gap-y: 4px;
+}
+.card-title { font-size: 12.5px; font-weight: 700; color: #fff; }
+.pill {
+  font-family: 'JetBrains Mono', monospace; font-size: 9.5px;
+  letter-spacing: 0.8px; text-transform: uppercase;
+  padding: 2px 7px; border-radius: 3px; border: 1px solid;
+}
+.pill-cyan   { color: var(--cyan);   border-color: rgba(56,189,248,.3);  background: rgba(56,189,248,.07); }
+.pill-green  { color: var(--green);  border-color: rgba(74,222,128,.3);  background: rgba(74,222,128,.07); }
+.pill-yellow { color: var(--yellow); border-color: rgba(250,204,21,.3);  background: rgba(250,204,21,.07); }
+.pill-orange { color: var(--orange); border-color: rgba(251,146,60,.3);  background: rgba(251,146,60,.07); }
+.pill-pink   { color: var(--pink);   border-color: rgba(244,114,182,.3); background: rgba(244,114,182,.07);}
+.pill-purple { color: var(--purple); border-color: rgba(167,139,250,.3); background: rgba(167,139,250,.07);}
+.pill-red    { color: var(--red);    border-color: rgba(248,113,113,.3); background: rgba(248,113,113,.07);}
+
+/* context note inside card */
+.when-note {
+  font-size: 11px; color: var(--muted); padding: 6px 14px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(0,0,0,0.2);
+  display: flex; gap: 6px; align-items: flex-start;
+}
+.when-note::before { content: '→'; color: var(--cyan); flex-shrink:0; }
+
+/* ── CODE ── */
+pre {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px; line-height: 1.85;
+  padding: 14px 16px; overflow-x: auto;
+  background: var(--code-bg, #0a0d14);
+  scrollbar-width: thin; scrollbar-color: var(--border) transparent;
+}
+pre::-webkit-scrollbar { height: 4px; }
+pre::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+.kw { color: var(--kw); }
+.tp { color: var(--tp); }
+.st { color: var(--st); }
+.cm { color: var(--cm); font-style: italic; }
+.mt { color: var(--mt); }
+.nm { color: var(--nm); }
+.cn { color: var(--cn); }
+
+/* ── INLINE BANNER ── */
+.banner {
+  display: flex; gap: 10px; align-items: flex-start;
+  padding: 10px 14px; border-radius: 6px;
+  font-size: 12px; line-height: 1.5; margin-bottom: 12px;
+}
+.banner-info   { background: rgba(56,189,248,.07);  border: 1px solid rgba(56,189,248,.2);  }
+.banner-warn   { background: rgba(251,146,60,.07);   border: 1px solid rgba(251,146,60,.2);  }
+.banner-danger { background: rgba(248,113,113,.07);  border: 1px solid rgba(248,113,113,.2); }
+.banner-ok     { background: rgba(74,222,128,.07);   border: 1px solid rgba(74,222,128,.2);  }
+.banner b { color: #fff; }
+.bi { font-size: 15px; flex-shrink: 0; }
+
+/* ── TABLE ── */
+.tbl-wrap { overflow-x: auto; }
+table { width:100%; border-collapse: collapse; font-size: 12.5px; }
+thead { background: rgba(0,0,0,0.3); }
+th { padding: 8px 12px; text-align: left; font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:1px; text-transform:uppercase; color:var(--muted); border-bottom:1px solid var(--border); }
+td { padding: 8px 12px; border-bottom: 1px solid rgba(37,47,66,0.6); vertical-align: top; }
+tr:last-child td { border-bottom: none; }
+td code { font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--cyan); background:rgba(56,189,248,.08); padding:1px 5px; border-radius:3px; }
+td.fix { color: var(--dim); font-size: 12px; }
+td.exc { color: var(--red); font-family:'JetBrains Mono',monospace; font-size:11.5px; }
+td.cause { color: var(--dim); font-size: 12px; }
+tr:hover td { background: rgba(255,255,255,0.015); }
+
+/* ── SIDE-BY-SIDE COMPARE ── */
+.compare { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+.compare-col { }
+.compare-label {
+  font-size: 10px; font-family:'JetBrains Mono',monospace;
+  letter-spacing:1px; text-transform:uppercase; padding: 5px 14px;
+  border-bottom: 1px solid var(--border);
+}
+.good { color: var(--green); background: rgba(74,222,128,.05); }
+.bad  { color: var(--red);   background: rgba(248,113,113,.05); }
+
+/* ── TAG STRIP ── */
+.tag-strip {
+  display: flex; flex-wrap: wrap; gap: 6px;
+  padding: 10px 14px 12px;
+}
+.tag-item {
+  font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  padding: 3px 9px; border-radius: 4px;
+  background: var(--surface); border: 1px solid var(--border);
+  color: var(--dim);
+}
+.tag-item b { color: var(--text); }
+
+/* ── LOCATOR PRIORITY ── */
+.prio-list { padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; }
+.prio-row { display: flex; align-items: center; gap: 10px; }
+.prio-num {
+  width: 20px; height: 20px; border-radius: 4px;
+  font-size: 10px; font-weight: 700; font-family:'JetBrains Mono',monospace;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.p1 { background: rgba(74,222,128,.2); color: var(--green); }
+.p2 { background: rgba(56,189,248,.15); color: var(--cyan); }
+.p3 { background: rgba(250,204,21,.15); color: var(--yellow); }
+.p4 { background: rgba(248,113,113,.15); color: var(--red); }
+.prio-text { font-size: 12.5px; }
+.prio-text code { font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--cyan); background:rgba(56,189,248,.08); padding:1px 5px; border-radius:3px; }
+.prio-desc { font-size: 11px; color: var(--muted); margin-left: auto; }
+
+/* ── FLOW STEPS ── */
+.flow { padding: 12px 14px 16px; display: flex; flex-direction: column; gap: 0; }
+.flow-step {
+  display: flex; gap: 12px; align-items: flex-start;
+  padding: 8px 0; position: relative;
+}
+.flow-step:not(:last-child)::before {
+  content: ''; position: absolute; left: 9px; top: 26px;
+  width: 2px; height: calc(100% - 6px);
+  background: var(--border);
+}
+.flow-dot {
+  width: 20px; height: 20px; border-radius: 50%; flex-shrink: 0;
+  border: 2px solid var(--cyan); background: var(--bg);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; font-weight: 700; color: var(--cyan); font-family:'JetBrains Mono',monospace;
+  position: relative; z-index: 1;
+}
+.flow-body { font-size: 12.5px; }
+.flow-body strong { color: #fff; display: block; margin-bottom: 2px; }
+.flow-body code { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--green); }
+.flow-body span { color: var(--muted); font-size: 11.5px; }
+
+/* ── FOOTER ── */
+footer {
+  text-align:center; padding:24px; color:var(--muted);
+  font-size:11.5px; border-top:1px solid var(--border);
+  font-family:'JetBrains Mono',monospace;
+}
+
+@media(max-width:700px){
+  header { padding: 24px 16px 20px; }
+  main { padding: 20px 12px 60px; }
+  .g2,.g3 { grid-template-columns:1fr; }
+  .compare { grid-template-columns:1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════ HEADER -->
+<button class="theme-toggle" onclick="toggleTheme()" title="Toggle light/dark mode">
+  <div class="toggle-track"><div class="toggle-thumb"></div></div>
+  <span id="toggle-label">Light</span>
+</button>
+<header>
+  <div class="header-left">
+    <div class="badge">Selenium 4 + Java + TestNG</div>
+    <h1>Selenium <em>Cheatsheet</em></h1>
+    <p class="tagline">Every method, when to use it, and why — all in one place.</p>
+  </div>
+  <div class="legend">
+    <div class="legend-item"><div class="dot" style="background:var(--cyan)"></div> Core API</div>
+    <div class="legend-item"><div class="dot" style="background:var(--green)"></div> Best practice</div>
+    <div class="legend-item"><div class="dot" style="background:var(--yellow)"></div> Context / when</div>
+    <div class="legend-item"><div class="dot" style="background:var(--red)"></div> Avoid / danger</div>
+    <div class="legend-item"><div class="dot" style="background:var(--purple)"></div> Advanced</div>
+  </div>
+</header>
+
+<!-- ══════════════════════════════════════════ NAV -->
+<nav class="nav-bar">
+  <a href="#s-setup">Setup</a>
+  <a href="#s-driver">WebDriver</a>
+  <a href="#s-locators">Locators</a>
+  <a href="#s-elements">Elements</a>
+  <a href="#s-waits">Waits</a>
+  <a href="#s-windows">Windows/Tabs</a>
+  <a href="#s-frames">iFrames</a>
+  <a href="#s-alerts">Alerts</a>
+  <a href="#s-actions">Actions</a>
+  <a href="#s-js">JS Executor</a>
+  <a href="#s-select">Dropdowns</a>
+  <a href="#s-files">File Upload</a>
+  <a href="#s-cookies">Cookies</a>
+  <a href="#s-screenshots">Screenshots</a>
+  <a href="#s-testng">TestNG</a>
+  <a href="#s-pom">POM Pattern</a>
+  <a href="#s-exceptions">Exceptions</a>
+  <a href="#s-imports">Imports</a>
+</nav>
+
+<main>
+
+<!-- ══════════════════════════════════════════ 1. SETUP -->
+<section class="sec" id="s-setup">
+  <div class="sec-head">
+    <span class="sec-icon">📦</span>
+    <span class="sec-title">Project Setup</span>
+    <span class="sec-when">Do this once before writing any test</span>
+  </div>
+  <div class="g2">
+
+    <div class="card">
+      <div class="card-top"><span class="card-title">Maven pom.xml Dependencies</span><span class="pill pill-yellow">pom.xml</span></div>
+      <div class="when-note">Add these to your Maven project. WebDriverManager auto-downloads the correct driver binary — no manual ChromeDriver setup needed.</div>
+<pre><span class="cm">&lt;!-- Selenium 4 --&gt;</span>
+&lt;dependency&gt;
+  &lt;groupId&gt;org.seleniumhq.selenium&lt;/groupId&gt;
+  &lt;artifactId&gt;selenium-java&lt;/artifactId&gt;
+  &lt;version&gt;<span class="st">4.18.1</span>&lt;/version&gt;
+&lt;/dependency&gt;
+
+<span class="cm">&lt;!-- Auto driver binary management --&gt;</span>
+&lt;dependency&gt;
+  &lt;groupId&gt;io.github.bonigarcia&lt;/groupId&gt;
+  &lt;artifactId&gt;webdrivermanager&lt;/artifactId&gt;
+  &lt;version&gt;<span class="st">5.7.0</span>&lt;/version&gt;
+&lt;/dependency&gt;
+
+<span class="cm">&lt;!-- Test framework --&gt;</span>
+&lt;dependency&gt;
+  &lt;groupId&gt;org.testng&lt;/groupId&gt;
+  &lt;artifactId&gt;testng&lt;/artifactId&gt;
+  &lt;version&gt;<span class="st">7.9.0</span>&lt;/version&gt;
+  &lt;scope&gt;test&lt;/scope&gt;
+&lt;/dependency&gt;
+
+<span class="cm">&lt;!-- Screenshots: FileUtils --&gt;</span>
+&lt;dependency&gt;
+  &lt;groupId&gt;commons-io&lt;/groupId&gt;
+  &lt;artifactId&gt;commons-io&lt;/artifactId&gt;
+  &lt;version&gt;<span class="st">2.15.1</span>&lt;/version&gt;
+&lt;/dependency&gt;</pre>
+    </div>
+
+    <div class="card">
+      <div class="card-top"><span class="card-title">Driver Initialization</span><span class="pill pill-cyan">@BeforeMethod</span></div>
+      <div class="when-note">Use in @BeforeMethod (TestNG) or @BeforeEach (JUnit). Always call driver.quit() in @AfterMethod — not driver.close().</div>
+<pre><span class="cm">// ── Chrome (most common) ──</span>
+<span class="tp">WebDriverManager</span>.<span class="mt">chromedriver</span>().<span class="mt">setup</span>();
+<span class="tp">WebDriver</span> driver = <span class="kw">new</span> <span class="tp">ChromeDriver</span>();
+
+<span class="cm">// ── Firefox ──</span>
+<span class="tp">WebDriverManager</span>.<span class="mt">firefoxdriver</span>().<span class="mt">setup</span>();
+<span class="tp">WebDriver</span> driver = <span class="kw">new</span> <span class="tp">FirefoxDriver</span>();
+
+<span class="cm">// ── Edge ──</span>
+<span class="tp">WebDriverManager</span>.<span class="mt">edgedriver</span>().<span class="mt">setup</span>();
+<span class="tp">WebDriver</span> driver = <span class="kw">new</span> <span class="tp">EdgeDriver</span>();
+
+<span class="cm">// ── Chrome with Options ──</span>
+<span class="tp">ChromeOptions</span> opts = <span class="kw">new</span> <span class="tp">ChromeOptions</span>();
+opts.<span class="mt">addArguments</span>(<span class="st">"--headless=new"</span>);       <span class="cm">// no UI</span>
+opts.<span class="mt">addArguments</span>(<span class="st">"--start-maximized"</span>);
+opts.<span class="mt">addArguments</span>(<span class="st">"--disable-notifications"</span>);
+opts.<span class="mt">addArguments</span>(<span class="st">"--incognito"</span>);
+opts.<span class="mt">addArguments</span>(<span class="st">"--disable-popup-blocking"</span>);
+<span class="cm">// Ignore SSL cert errors</span>
+opts.<span class="mt">setAcceptInsecureCerts</span>(<span class="kw">true</span>);
+
+<span class="tp">WebDriver</span> driver = <span class="kw">new</span> <span class="tp">ChromeDriver</span>(opts);
+driver.<span class="mt">manage</span>().<span class="mt">window</span>().<span class="mt">maximize</span>();
+driver.<span class="mt">manage</span>().<span class="mt">timeouts</span>()
+      .<span class="mt">pageLoadTimeout</span>(<span class="tp">Duration</span>.<span class="mt">ofSeconds</span>(<span class="nm">30</span>));</pre>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════ 2. WEBDRIVER COMMANDS -->
+<section class="sec" id="s-driver">
+  <div class="sec-head">
+    <span class="sec-icon">🚗</span>
+    <span class="sec-title">WebDriver Commands</span>
+    <span class="sec-when">Basic browser control you'll use in every test</span>
+  </div>
+  <div class="g3">
+
+    <div class="card">
+      <div class="card-top"><span class="card-title">Navigation</span><span class="pill pill-cyan">navigate</span></div>
+      <div class="when-note">Use driver.get() to land on a page. Use navigate() methods to simulate browser buttons.</div>
+<pre>driver.<span class="mt">get</span>(<span class="st">"https://site.com"</span>);   <span class="cm">// go to URL</span>
+driver.<span class="mt">navigate</span>().<span class="mt">to</span>(<span class="st">"https://..."</span>);
+
+driver.<span class="mt">navigate</span>().<span class="mt">back</span>();       <span class="cm">// browser Back</span>
+driver.<span class="mt">navigate</span>().<span class="mt">forward</span>();    <span class="cm">// browser Forward</span>
+driver.<span class="mt">navigate</span>().<span class="mt">refresh</span>();    <span class="cm">// F5 / reload</span></pre>
+    </div>
+
+    <div class="card">
+      <div class="card-top"><span class="card-title">Get Info from Browser</span><span class="pill pill-cyan">getters</span></div>
+      <div class="when-note">Use to assert the URL changed after login, or verify the page title in a test.</div>
+<pre>driver.<span class="mt">getTitle</span>();        <span class="cm">// "Google"</span>
+driver.<span class="mt">getCurrentUrl</span>();  <span class="cm">// "https://..."</span>
+driver.<span class="mt">getPageSource</span>();  <span class="cm">// full HTML string</span></pre>
+    </div>
+
+    <div class="card">
+      <div class="card-top"><span class="card-title">Window Size & Close</span><span class="pill pill-cyan">manage</span></div>
+      <div class="when-note">Maximize in @BeforeMethod. Always use quit() in @AfterMethod — close() only closes one tab.</div>
+<pre>driver.<span class="mt">manage</span>().<span class="mt">window</span>().<span class="mt">maximize</span>();
+driver.<span class="mt">manage</span>().<span class="mt">window</span>().<span class="mt">minimize</span>();
+driver.<span class="mt">manage</span>().<span class="mt">window</span>().<span class="mt">fullscreen</span>();
+
+<span class="tp">Dimension</span> d = <span class="kw">new</span> <span class="tp">Dimension</span>(<span class="nm">1280</span>,<span class="nm">800</span>);
+driver.<span class="mt">manage</span>().<span class="mt">window</span>().<span class="mt">setSize</span>(d);
+
+driver.<span class="mt">close</span>();   <span class="cm">// closes CURRENT tab only</span>
+driver.<span class="mt">quit</span>();    <span class="cm">// closes ALL + kills session ✅</span></pre>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════ 3. LOCATORS -->
+<section class="sec" id="s-locators">
+  <div class="sec-head">
+    <span class="sec-icon">🎯</span>
+    <span class="sec-title">Locators — Finding Elements</span>
+    <span class="sec-when">The most important skill — if your locator breaks, your test breaks</span>
+  </div>
+
+  <div class="banner banner-info" style="margin-bottom:14px">
+    <span class="bi">💡</span>
+    <div><b>Quick rule:</b> Always prefer <code style="color:var(--cyan)">id</code>, then <code style="color:var(--cyan)">name</code>, then <code style="color:var(--cyan)">CSS selector</code>. Use XPath only when CSS can't reach it (e.g., find by text, parent/sibling navigation). Absolute XPath <code style="color:var(--red)">/html/body/div[1]/...</code> — never use in real tests.</div>
+  </div>
+
+  <div class="g2">
+
+    <div class="card">
+      <div class="card-top"><span class="card-title">All 8 Locator Strategies</span><span class="pill pill-cyan">By.*</span></div>
+      <div class="when-note">findElement() returns first match and throws if not found. findElements() returns a List (empty list if none found — no exception).</div>
+<pre><span class="cm">// ── Single element ──</span>
+<span class="tp">WebElement</span> el = driver.<span class="mt">findElement</span>(<span class="cn">By</span>.<span class="mt">id</span>(<span class="st">"username"</span>));
+<span class="tp">WebElement</span> el = driver.<span class="mt">findElement</span>(<span class="cn">By</span>.<span class="mt">name</span>(<span class="st">"email"</span>));
+<span class="tp">WebElement</span> el = driver.<span class="mt">findElement</span>(<span class="cn">By</span>.<span class="mt">className</span>(<span class="st">"btn"</span>));
+<span class="tp">WebElement</span> el = driver.<span class="mt">findElement</span>(<span class="cn">By</span>.<span class="mt">tagName</span>(<span class="st">"h1"</span>));
+<span class="tp">WebElement</span> el = driver.<span class="mt">findElement</span>(<span class="cn">By</span>.<span class="mt">linkText</span>(<span class="st">"Sign In"</span>));
+<span class="tp">WebElement</span> el = driver.<span class="mt">findElement</span>(<span class="cn">By</span>.<span class="mt">partialLinkText</span>(<span class="st">"Sign"</span>));
+<span class="tp">WebElement</span> el = driver.<span class="mt">findElement</span>(<span class="cn">By</span>.<span class="mt">cssSelector</span>(<span class="st">"#form .btn"</span>));
+<span class="tp">WebElement</span> el = driver.<span class="mt">findElement</span>(<span class="cn">By</span>.<span class="mt">xpath</span>(<span class="st">"//button[@type='submit']"</span>));
+
+<span class="cm">// ── Multiple elements ──</span>
+<span class="tp">List</span>&lt;<span class="tp">WebElement</span>&gt; rows = driver.<span class="mt">findElements</span>(<span class="cn">By</span>.<span class="mt">cssSelector</span>(<span class="st">"table tr"</span>));
+<span class="kw">int</span> count = rows.<span class="mt">size</span>();
+
+<span class="cm">// ── Find within element (scoped) ──</span>
+<span class="tp">WebElement</span> form = driver.<span class="mt">findElement</span>(<span class="cn">By</span>.<span class="mt">id</span>(<span class="st">"loginForm"</span>));
+<span class="tp">WebElement</span> btn  = form.<span class="mt">findElement</span>(<span class="cn">By</span>.<span class="mt">tagName</span>(<span class="st">"button"</span>));</pre>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div class="card">
+        <div class="card-top"><span class="card-title">Locator Priority</span><span class="pill pill-green">use this order</span></div>
+        <div class="prio-list">
+          <div class="prio-row"><div class="prio-num p1">1</div><div class="prio-text">Use <code>By.id()</code></div><div class="prio-desc">Unique, fast, never changes</div></div>
+          <div class="prio-row"><div class="prio-num p1">2</div><div class="prio-text">Use <code>By.name()</code></div><div class="prio-desc">Good for form fields</div></div>
+          <div class="prio-row"><div class="prio-num p2">3</div><div class="prio-text">Use <code>By.cssSelector()</code></div><div class="prio-desc">Fast, readable, flexible</div></div>
+          <div class="prio-row"><div class="prio-num p3">4</div><div class="prio-text">Use <code>By.xpath()</code></div><div class="prio-desc">When CSS can't do it</div></div>
+          <div class="prio-row"><div class="prio-num p4">✗</div><div class="prio-text">Avoid absolute XPath</div><div class="prio-desc">Breaks on any HTML change</div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-top"><span class="card-title">Check if element exists (no exception)</span><span class="pill pill-green">safe check</span></div>
+        <div class="when-note">Use findElements to check existence — returns empty list instead of throwing.</div>
+<pre><span class="tp">List</span>&lt;<span class="tp">WebElement</span>&gt; els = driver
+    .<span class="mt">findElements</span>(<span class="cn">By</span>.<span class="mt">id</span>(<span class="st">"banner"</span>));
+<span class="kw">boolean</span> exists = !els.<span class="mt">isEmpty</span>();
+<span class="kw">boolean</span> shown  = exists &amp;&amp;
+    els.<span class="mt">get</span>(<span class="nm">0</span>).<span class="mt">isDisplayed</span>();</pre>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="g2" style="margin-top:14px">
+    <div class="card">
+      <div class="card-top"><span class="card-title">CSS Selector Patterns</span><span class="pill pill-cyan">cssSelector</span></div>
+      <div class="when-note">Use CSS for most cases — faster than XPath and easier to read.</div>
+<pre><span class="st">"#loginBtn"</span>             <span class="cm">// id</span>
+<span class="st">".primary-btn"</span>          <span class="cm">// class</span>
+<span class="st">"button.primary"</span>       <span class="cm">// tag + class</span>
+<span class="st">"div#main .card"</span>       <span class="cm">// nested</span>
+<span class="st">"div > p"</span>              <span class="cm">// direct child only</span>
+<span class="st">"input[type='email']"</span>  <span class="cm">// attribute match</span>
+<span class="st">"a[href*='login']"</span>     <span class="cm">// href contains</span>
+<span class="st">"input[name^='user']"</span>  <span class="cm">// name starts with</span>
+<span class="st">"input[name$='name']"</span>  <span class="cm">// name ends with</span>
+<span class="st">"li:nth-child(3)"</span>      <span class="cm">// 3rd list item</span>
+<span class="st">"li:first-child"</span>       <span class="cm">// first</span>
+<span class="st">"li:last-child"</span>        <span class="cm">// last</span>
+<span class="st">"input:not([disabled])"</span> <span class="cm">// not disabled</span>
+<span class="st">"label + input"</span>        <span class="cm">// sibling after label</span></pre>
+    </div>
+
+    <div class="card">
+      <div class="card-top"><span class="card-title">XPath Patterns</span><span class="pill pill-yellow">xpath — when CSS can't</span></div>
+      <div class="when-note">Use XPath when you need: find by text, go to parent, or traverse siblings.</div>
+<pre><span class="cm">// by text content</span>
+<span class="st">"//button[text()='Login']"</span>
+<span class="st">"//button[contains(text(),'Log')]"</span>
+<span class="st">"//span[normalize-space()='Submit']"</span>
+
+<span class="cm">// by attribute</span>
+<span class="st">"//input[@placeholder='Email']"</span>
+<span class="st">"//input[contains(@class,'active')]"</span>
+<span class="st">"//input[starts-with(@id,'user')]"</span>
+
+<span class="cm">// parent / ancestor</span>
+<span class="st">"//td[text()='Alice']/.."</span>       <span class="cm">// parent tr</span>
+<span class="st">"//td[text()='Alice']/../td[2]"</span> <span class="cm">// sibling td</span>
+
+<span class="cm">// following/preceding sibling</span>
+<span class="st">"//label[text()='Name']/following-sibling::input"</span>
+<span class="st">"//label[text()='Name']/preceding-sibling::div"</span>
+
+<span class="cm">// index (1-based in XPath!)</span>
+<span class="st">"(//table//tr)[3]"</span>
+
+<span class="cm">// AND / OR</span>
+<span class="st">"//input[@type='text' and @name='q']"</span></pre>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════ 4. ELEMENT INTERACTIONS -->
+<section class="sec" id="s-elements">
+  <div class="sec-head">
+    <span class="sec-icon">⚡</span>
+    <span class="sec-title">Element Interactions</span>
+    <span class="sec-when">After finding an element — what you can DO with it</span>
+  </div>
+  <div class="g3">
+
+    <div class="card">
+      <div class="card-top"><span class="card-title">Click, Type, Clear</span><span class="pill pill-cyan">actions</span></div>
+      <div class="when-note">Always clear() before sendKeys() on input fields — otherwise text appends to existing value.</div>
+<pre>el.<span class="mt">click</span>();
+el.<span class="mt">clear</span>();
+el.<span class="mt">sendKeys</span>(<span class="st">"hello@test.com"</span>);
+el.<span class="mt">submit</span>();        <span class="cm">// submits parent form</span>
+
+<span class="cm">// clear + type in one pattern</span>
+el.<span class="mt">clear</span>();
+el.<span class="mt">sendKeys</span>(<span class="st">"new value"</span>);</pre>
+    </div>
+
+    <div class="card">
+      <div class="card-top"><span class="card-title">Special Keys (Keys enum)</span><span class="pill pill-cyan">Keys.*</span></div>
+      <div class="when-note">Use when you need to press keyboard keys: Tab between fields, Enter to submit, Ctrl+A to select all text.</div>
+<pre>el.<span class="mt">sendKeys</span>(<span class="cn">Keys</span>.ENTER);
+el.<span class="mt">sendKeys</span>(<span class="cn">Keys</span>.TAB);
+el.<span class="mt">sendKeys</span>(<span class="cn">Keys</span>.ESCAPE);
+el.<span class="mt">sendKeys</span>(<span class="cn">Keys</span>.SPACE);
+el.<span class="mt">sendKeys</span>(<span class="cn">Keys</span>.BACK_SPACE);
+el.<span class="mt">sendKeys</span>(<span class="cn">Keys</span>.DELETE);
+el.<span class="mt">sendKeys</span>(<span class="cn">Keys</span>.ARROW_DOWN);
+el.<span class="mt">sendKeys</span>(<span class="cn">Keys</span>.HOME);
+el.<span class="mt">sendKeys</span>(<span class="cn">Keys</span>.END);
+
+<span class="cm">// Ctrl/Cmd combinations</span>
+el.<span class="mt">sendKeys</span>(<span class="cn">Keys</span>.chord(<span class="cn">Keys</span>.CONTROL,<span class="st">"a"</span>)); <span class="cm">// select all</span>
+el.<span class="mt">sendKeys</span>(<span class="cn">Keys</span>.chord(<span class="cn">Keys</span>.CONTROL,<span class="st">"c"</span>)); <span class="cm">// copy</span>
+el.<span class="mt">sendKeys</span>(<span class="cn">Keys</span>.chord(<span class="cn">Keys</span>.CONTROL,<span class="st">"v"</span>)); <span class="cm">// paste</span>
+el.<span class="mt">sendKeys</span>(<span class="cn">Keys</span>.chord(<span class="cn">Keys</span>.CONTROL,<span class="st">"a"</span>),<span class="st">"new text"</span>);</pre>
+    </div>
+
+    <div class="card">
+      <div class="card-top"><span class="card-title">Read Data from Element</span><span class="pill pill-cyan">getters</span></div>
+      <div class="when-note">Use getText() to assert displayed values. Use getAttribute("value") for input field current value. getAttribute("innerText") when getText() returns empty.</div>
+<pre>el.<span class="mt">getText</span>();              <span class="cm">// visible text</span>
+el.<span class="mt">getAttribute</span>(<span class="st">"value"</span>);  <span class="cm">// input value</span>
+el.<span class="mt">getAttribute</span>(<span class="st">"href"</span>);   <span class="cm">// link href</span>
+el.<span class="mt">getAttribute</span>(<span class="st">"class"</span>);  <span class="cm">// class names</span>
+el.<span class="mt">getAttribute</span>(<span class="st">"disabled"</span>);<span class="cm">// null if not disabled</span>
+el.<span class="mt">getAttribute</span>(<span class="st">"innerHTML"</span>);<span class="cm">// inner HTML</span>
+el.<span class="mt">getCssValue</span>(<span class="st">"color"</span>);   <span class="cm">// CSS rgb value</span>
+el.<span class="mt">getCssValue</span>(<span class="st">"font-size"</span>);
+el.<span class="mt">getTagName</span>();            <span class="cm">// "input","button"…</span>
+el.<span class="mt">getLocation</span>();           <span class="cm">// Point (x,y)</span>
+el.<span class="mt">getSize</span>();               <span class="cm">// Dimension (w,h)</span></pre>
+    </div>
+
+    <div class="card">
+      <div class="card-top"><span class="card-title">Element State Checks</span><span class="pill pill-green">booleans</span></div>
+      <div class="when-note">Always check isDisplayed() before asserting visibility. isEnabled() before clicking buttons. isSelected() for checkboxes/radios.</div>
+<pre>el.<span class="mt">isDisplayed</span>();  <span class="cm">// visible on screen?</span>
+el.<span class="mt">isEnabled</span>();   <span class="cm">// not disabled?</span>
+el.<span class="mt">isSelected</span>(); <span class="cm">// checkbox / radio ON?</span>
+
+<span class="cm">// Common usage pattern</span>
+<span class="kw">if</span> (el.<span class="mt">isDisplayed</span>() &amp;&amp; el.<span class="mt">isEnabled</span>()) {
+    el.<span class="mt">click</span>();
+}
+
+<span class="cm">// Assert in tests</span>
+<span class="cn">Assert</span>.<span class="mt">assertTrue</span>(el.<span class="mt">isDisplayed</span>(),
+    <span class="st">"Error message should be visible"</span>);
+<span class="cn">Assert</span>.<span class="mt">assertTrue</span>(checkbox.<span class="mt">isSelected</span>(),
+    <span class="st">"Checkbox must be checked"</span>);</pre>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════ 5. WAITS -->
+<section class="sec" id="s-waits">
+  <div class="sec-head">
+    <span class="sec-icon">⏳</span>
+    <span class="sec-title">Waits — Synchronization</span>
+    <span class="sec-when">The #1 cause of flaky tests is wrong or missing waits</span>
+  </div>
+
+  <div class="banner banner-danger">
+    <span class="bi">🚫</span>
+    <div><b>Never use Thread.sleep(ms)</b> — it always waits the full time even if the element appears early. It makes tests slow AND fragile. Use Explicit Wait instead.</div>
+  </div>
+  <div class="banner banner-warn">
+    <span class="bi">⚠️</span>
+    <div><b>Don't mix Implicit + Explicit Wait</b> — they interact unpredictably. Pick one strategy per project. Explicit Wait is preferred.</div>
+  </div>
+
+  <div class="g2" style="margin-top:14px">
+
+    <div class="card">
+      <div class="card-top"><span class="card-title">Implicit Wait</span><span class="pill pill-yellow">global / simple projects</span></div>
+      <div class="when-note">Set once in @BeforeMethod. Tells WebDriver to poll the DOM for up to N seconds on every findElement call before throwing. Good for simple scripts, risky in complex frameworks.</div>
+<pre><span class="cm">// Set ONCE after creating driver</span>
+driver.<span class="mt">manage</span>().<span class="mt">timeouts</span>()
+      .<span class="mt">implicitlyWait</span>(<span class="tp">Duration</span>.<span class="mt">ofSeconds</span>(<span class="nm">10</span>));
+
+<span class="cm">// Now every findElement auto-waits up to 10s</span>
+<span class="tp">WebElement</span> el = driver.<span class="mt">findElement</span>(<span class="cn">By</span>.<span class="mt">id</span>(<span class="st">"btn"</span>));</pre>
+    </div>
+
+    <div class="card">
+      <div class="card-top"><span class="card-title">Explicit Wait — WebDriverWait</span><span class="pill pill-green">✅ preferred</span></div>
+      <div class="when-note">Use when a specific element or condition needs to be waited for — dynamic content, AJAX, page transitions. More precise than implicit wait.</div>
+<pre><span class="tp">WebDriverWait</span> wait = <span class="kw">new</span> <span class="tp">WebDriverWait</span>(
+    driver, <span class="tp">Duration</span>.<span class="mt">ofSeconds</span>(<span class="nm">15</span>));
+
+<span class="cm">// Wait for element to be visible</span>
+<span class="tp">WebElement</span> el = wait.<span class="mt">until</span>(
+    <span class="cn">ExpectedConditions</span>.<span class="mt">visibilityOfElementLocated</span>(
+        <span class="cn">By</span>.<span class="mt">id</span>(<span class="st">"result"</span>)));
+
+<span class="cm">// Wait for element to be clickable</span>
+wait.<span class="mt">until</span>(<span class="cn">ExpectedConditions</span>
+    .<span class="mt">elementToBeClickable</span>(<span class="cn">By</span>.<span class="mt">id</span>(<span class="st">"submitBtn"</span>)))
+    .<span class="mt">click</span>();
+
+<span class="cm">// Wait for element in DOM (not necessarily visible)</span>
+wait.<span class="mt">until</span>(<span class="cn">ExpectedConditions</span>
+    .<span class="mt">presenceOfElementLocated</span>(<span class="cn">By</span>.<span class="mt">id</span>(<span class="st">"msg"</span>)));
+
+<span class="cm">// Wait for element to disappear (loader/spinner)</span>
+wait.<span class="mt">until</span>(<span class="cn">ExpectedConditions</span>
+    .<span class="mt">invisibilityOfElementLocated</span>(<span class="cn">By</span>.<span class="mt">id</span>(<span class="st">"loader"</span>)));</pre>
+    </div>
+
+  </div>
+
+  <div class="g2" style="margin-top:14px">
+    <div class="card">
+      <div class="card-top"><span class="card-title">All ExpectedConditions — Quick Reference</span><span class="pill pill-cyan">EC.*</span></div>
+      <div class="when-note">Use these as arguments to wait.until(). Pick the right condition for the situation.</div>
+<pre><span class="cm">// ── Visibility ──</span>
+.<span class="mt">visibilityOfElementLocated</span>(by)    <span class="cm">// element visible</span>
+.<span class="mt">visibilityOf</span>(webElement)          <span class="cm">// same, WebElement ref</span>
+.<span class="mt">invisibilityOfElementLocated</span>(by)  <span class="cm">// spinner gone</span>
+.<span class="mt">invisibilityOf</span>(webElement)
+
+<span class="cm">// ── Presence (in DOM, may be hidden) ──</span>
+.<span class="mt">presenceOfElementLocated</span>(by)
+.<span class="mt">presenceOfAllElementsLocatedBy</span>(by)
+
+<span class="cm">// ── Clickability ──</span>
+.<span class="mt">elementToBeClickable</span>(by)
+.<span class="mt">elementToBeClickable</span>(webElement)
+
+<span class="cm">// ── Text / attribute ──</span>
+.<span class="mt">textToBePresentInElement</span>(el, <span class="st">"text"</span>)
+.<span class="mt">textToBePresentInElementLocated</span>(by, <span class="st">"text"</span>)
+.<span class="mt">textToBePresentInElementValue</span>(el, <span class="st">"val"</span>)
+.<span class="mt">attributeContains</span>(el, <span class="st">"class"</span>, <span class="st">"active"</span>)
+.<span class="mt">attributeToBe</span>(el, <span class="st">"value"</span>, <span class="st">"done"</span>)
+
+<span class="cm">// ── URL ──</span>
+.<span class="mt">urlContains</span>(<span class="st">"dashboard"</span>)
+.<span class="mt">urlToBe</span>(<span class="st">"https://site.com/home"</span>)
+
+<span class="cm">// ── Title ──</span>
+.<span class="mt">titleContains</span>(<span class="st">"Home"</span>)
+.<span class="mt">titleIs</span>(<span class="st">"Dashboard - App"</span>)
+
+<span class="cm">// ── Selection (checkbox) ──</span>
+.<span class="mt">elementToBeSelected</span>(el)
+.<span class="mt">elementSelectionStateToBe</span>(el, <span class="kw">true</span>)
+
+<span class="cm">// ── Alert ──</span>
+.<span class="mt">alertIsPresent</span>()
+
+<span class="cm">// ── Frame ──</span>
+.<span class="mt">frameToBeAvailableAndSwitchToIt</span>(by)
+
+<span class="cm">// ── Count ──</span>
+.<span class="mt">numberOfElementsToBe</span>(by, <span class="nm">5</span>)
+.<span class="mt">numberOfElementsToBeMoreThan</span>(by, <span class="nm">0</span>)
+
+<span class="cm">// ── Custom lambda ──</span>
+wait.<span class="mt">until</span>(d -&gt;
+    d.<span class="mt">findElement</span>(<span class="cn">By</span>.<span class="mt">id</span>(<span class="st">"badge"</span>))
+     .<span class="mt">getAttribute</span>(<span class="st">"class"</span>)
+     .<span class="mt">contains</span>(<span class="st">"active"</span>));</pre>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div class="card">
+        <div class="card-top"><span class="card-title">FluentWait</span><span class="pill pill-purple">advanced</span></div>
+        <div class="when-note">Use when polling frequency matters — e.g., checking every 500ms for a slow AJAX response, and you want to silently ignore NoSuchElementException during the wait.</div>
+<pre><span class="tp">Wait</span>&lt;<span class="tp">WebDriver</span>&gt; fw = <span class="kw">new</span> <span class="tp">FluentWait</span>&lt;&gt;(driver)
+    .<span class="mt">withTimeout</span>(<span class="tp">Duration</span>.<span class="mt">ofSeconds</span>(<span class="nm">30</span>))
+    .<span class="mt">pollingEvery</span>(<span class="tp">Duration</span>.<span class="mt">ofMillis</span>(<span class="nm">500</span>))
+    .<span class="mt">ignoring</span>(<span class="tp">NoSuchElementException</span>.<span class="kw">class</span>)
+    .<span class="mt">ignoring</span>(<span class="tp">StaleElementReferenceException</span>.<span class="kw">class</span>)
+    .<span class="mt">withMessage</span>(<span class="st">"Element did not appear!"</span>);
+
+<span class="tp">WebElement</span> el = fw.<span class="mt">until</span>(d -&gt;
+    d.<span class="mt">findElement</span>(<span class="cn">By</span>.<span class="mt">id</span>(<span class="st">"dynamicEl"</span>)));</pre>
+      </div>
+
+      <div class="card">
+        <div class="card-top"><span class="card-title">Timeouts</span><span class="pill pill-yellow">driver config</span></div>
+        <div class="when-note">Set page load timeout to prevent tests hanging on slow pages. Script timeout matters when running async JS via JavascriptExecutor.</div>
+<pre><span class="cm">// Max time to wait for page to load</span>
+driver.<span class="mt">manage</span>().<span class="mt">timeouts</span>()
+    .<span class="mt">pageLoadTimeout</span>(<span class="tp">Duration</span>.<span class="mt">ofSeconds</span>(<span class="nm">30</span>));
+
+<span class="cm">// Max time for executeAsyncScript</span>
+driver.<span class="mt">manage</span>().<span class="mt">timeouts</span>()
+    .<span class="mt">scriptTimeout</span>(<span class="tp">Duration</span>.<span class="mt">ofSeconds</span>(<span class="nm">10</span>));</pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════ 6. WINDOWS & TABS -->
+<section class="sec" id="s-windows">
+  <div class="sec-head">
+    <span class="sec-icon">🪟</span>
+    <span class="sec-title">Windows & Tabs</span>
+    <span class="sec-when">When clicking opens a new tab/window, or you need to open one manually</span>
+  </div>
+  <div class="g2">
+
+    <div class="card">
+      <div class="card-top"><span class="card-title">Switch to New Tab / Window</span><span class="pill pill-cyan">switchTo</span></div>
+      <div class="when-note">After clicking a link that opens in a new tab — grab the parent handle first, then loop handles to find and switch to the new one. Switch back to parent when done.</div>
+<pre><span class="cm">// 1. Store parent handle BEFORE clicking</span>
+<span class="tp">String</span> parent = driver.<span class="mt">getWindowHandle</span>();
+
+<span class="cm">// 2. Action that opens new tab</span>
+driver.<span class="mt">findElement</span>(<span class="cn">By</span>.<span class="mt">id</span>(<span class="st">"newTabLink"</span>)).<span class="mt">click</span>();
+
+<span class="cm">// 3. Wait for new window to appear</span>
+<span class="tp">WebDriverWait</span> wait = <span class="kw">new</span> <span class="tp">WebDriverWait</span>(
+    driver, <span class="tp">Duration</span>.<span class="mt">ofSeconds</span>(<span class="nm">5</span>));
+wait.<span class="mt">until</span>(d -> d.<span class="mt">getWindowHandles</span>().<span class="mt">size</span>() > <span class="nm">1</span>);
+
+<span class="cm">// 4. Switch to new tab</span>
+<span class="kw">for</span> (<span class="tp">String</span> h : driver.<span class="mt">getWindowHandles</span>()) {
+    <span class="kw">if</span> (!h.<span class="mt">equals</span>(parent)) {
+        driver.<span class="mt">switchTo</span>().<span class="mt">window</span>(h);
+        <span class="kw">break</span>;
+    }
+}
+<span class="cm">// 5. Work on new tab...</span>
+
+<span class="cm">// 6. Close new tab, return to parent</span>
+driver.<span class="mt">close</span>();
+driver.<span class="mt">switchTo</span>().<span class="mt">window</span>(parent);</pre>
+    </div>
+
+    <div class="card">
+      <div class="card-top"><span class="card-title">Open New Tab / Window (Selenium 4)</span><span class="pill pill-green">Selenium 4 only</span></div>
+      <div class="when-note">Use this cleaner Selenium 4 API to open and switch to a new tab or window without looping through handles.</div>
+<pre><span class="cm">// Open new TAB and switch to it</span>
+driver.<span class="mt">switchTo</span>().<span class="mt">newWindow</span>(<span class="cn">WindowType</span>.TAB);
+driver.<span class="mt">get</span>(<span class="st">"https://example.com"</span>);
+
+<span class="cm">// Open new BROWSER WINDOW and switch</span>
+driver.<span class="mt">switchTo</span>().<span class="mt">newWindow</span>(<span class="cn">WindowType</span>.WINDOW);
+driver.<span class="mt">get</span>(<span class="st">"https://example.com"</span>);
+
+<span class="cm">// All handles</span>
+<span class="tp">Set</span>&lt;<span class="tp">String</span>&gt; allHandles = driver.<span class="mt">getWindowHandles</span>();
+<span class="tp">String</span> current = driver.<span class="mt">getWindowHandle</span>();</pre>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════ 7. IFRAMES -->
+<section class="sec" id="s-frames">
+  <div class="sec-head">
+    <span class="sec-icon">🖼️</span>
+    <span class="sec-title">iFrames</span>
+    <span class="sec-when">When elements are inside an &lt;iframe&gt; — findElement will fail until you switch in</span>
+  </div>
+  <div class="banner banner-warn">
+    <span class="bi">⚠️</span>
+    <div><b>Cannot find elements inside an iframe without switching first.</b> If findElement fails and you see &lt;iframe&gt; in the HTML, you need to switch into it first.</div>
+  </div>
+  <div class="g2" style="margin-top:14px">
+
+    <div class="card">
+      <div class="card-top"><span class="card-title">Switch Into & Out of iFrame</span><span class="pill pill-cyan">switchTo</span></div>
+      <div class="when-note">After switching in, all findElement calls search only inside that frame. Always switch back to defaultContent() when done, or nested frame work will fail.</div>
+<pre><span class="cm">// Switch by index (0 = first frame)</span>
+driver.<span class="mt">switchTo</span>().<span class="mt">frame</span>(<span class="nm">0</span>);
+
+<span class="cm">// Switch by name or id attribute</span>
+driver.<span class="mt">switchTo</span>().<span class="mt">frame</span>(<span class="st">"iframeName"</span>);
+
+<span class="cm">// Switch by WebElement (most reliable)</span>
+<span class="tp">WebElement</span> iframe = driver.<span class="mt">findElement</span>(
+    <span class="cn">By</span>.<span class="mt">tagName</span>(<span class="st">"iframe"</span>));
+driver.<span class="mt">switchTo</span>().<span class="mt">frame</span>(iframe);
+
+<span class="cm">// ── Now interact inside the frame ──</span>
+driver.<span class="mt">findElement</span>(<span class="cn">By</span>.<span class="mt">id</span>(<span class="st">"elementInsideFrame"</span>)).<span class="mt">click</span>();
+
+<span class="cm">// ── Return to main page ──</span>
+driver.<span class="mt">switchTo</span>().<span class="mt">defaultContent</span>();
+
+<span class="cm">// ── Go up one level (nested frames) ──</span>
+driver.<span class="mt">switchTo</span>().<span class="mt">parentFrame</span>();</pre>
+    </div>
+
+    <div class="card">
+      <div class="card-top"><span class="card-title">Wait + Switch Pattern</span><span class="pill pill-green">best practice</span></div>
+      <div class="when-note">Wait for the iframe to load before switching. This is the correct production pattern.</div>
+<pre><span class="tp">WebDriverWait</span> wait = <span class="kw">new</span> <span class="tp">WebDriverWait</span>(
+    driver, <span class="tp">Duration</span>.<span class="mt">ofSeconds</span>(<span class="nm">10</span>));
+
+<span class="cm">// Wait for frame AND switch in one step</span>
+wait.<span class="mt">until</span>(<span class="cn">ExpectedConditions</span>
+    .<span class="mt">frameToBeAvailableAndSwitchToIt</span>(
+        <span class="cn">By</span>.<span class="mt">id</span>(<span class="st">"paymentFrame"</span>)));
+
+<span class="cm">// Now inside frame — interact normally</span>
+driver.<span class="mt">findElement</span>(<span class="cn">By</span>.<span class="mt">id</span>(<span class="st">"cardNumber"</span>))
+      .<span class="mt">sendKeys</span>(<span class="st">"4111111111111111"</span>);
+
+<span class="cm">// Back to main page</span>
+driver.<span class="mt">switchTo</span>().<span class="mt">defaultContent</span>();</pre>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════ 8. ALERTS -->
+<section class="sec" id="s-alerts">
+  <div class="sec-head">
+    <span class="sec-icon">🔔</span>
+    <span class="sec-title">Alerts, Confirms & Prompts</span>
+    <span class="sec-when">JavaScript browser popup dialogs — cannot interact with them via findElement</span>
+  </div>
+  <div class="g2">
+
+    <div class="card">
+      <div class="card-top"><span class="card-title">Handle All 3 Alert Types</span><span class="pill pill-cyan">switchTo().alert()</span></div>
+      <div class="when-note">Alert = OK only. Confirm = OK + Cancel. Prompt = OK + Cancel + text input. All handled the same way — just add sendKeys() for prompt.</div>
+<pre><span class="cm">// ── Wait for alert then switch ──</span>
+<span class="tp">WebDriverWait</span> wait = <span class="kw">new</span> <span class="tp">WebDriverWait</span>(
+    driver, <span class="tp">Duration</span>.<span class="mt">ofSeconds</span>(<span class="nm">5</span>));
+wait.<span class="mt">until</span>(<span class="cn">ExpectedConditions</span>.<span class="mt">alertIsPresent</span>());
+
+<span class="tp">Alert</span> alert = driver.<span class="mt">switchTo</span>().<span class="mt">alert</span>();
+
+alert.<span class="mt">getText</span>();           <span class="cm">// read alert message</span>
+alert.<span class="mt">accept</span>();           <span class="cm">// click OK</span>
+alert.<span class="mt">dismiss</span>();          <span class="cm">// click Cancel</span>
+alert.<span class="mt">sendKeys</span>(<span class="st">"input"</span>); <span class="cm">// type in prompt</span>
+
+<span class="cm">// ── Prompt full flow ──</span>
+wait.<span class="mt">until</span>(<span class="cn">ExpectedConditions</span>.<span class="mt">alertIsPresent</span>());
+<span class="tp">Alert</span> prompt = driver.<span class="mt">switchTo</span>().<span class="mt">alert</span>();
+prompt.<span class="mt">sendKeys</span>(<span class="st">"My Answer"</span>);
+prompt.<span class="mt">accept</span>();</pre>
+    </div>
+
+    <div class="card">
+      <div class="card-top"><span class="card-title">Alert vs Confirm vs Prompt</span><span class="pill pill-yellow">types</span></div>
+      <div class="when-note">Know which type is on screen so you call the right method.</div>
+      <div class="tbl-wrap" style="padding:12px 14px">
+        <table>
+          <thead><tr><th>Type</th><th>Trigger JS</th><th>Buttons</th><th>Action</th></tr></thead>
+          <tbody>
+            <tr><td><code>alert()</code></td><td class="fix">alert("msg")</td><td class="fix">OK only</td><td class="fix">accept()</td></tr>
+            <tr><td><code>confirm()</code></td><td class="fix">confirm("?")</td><td class="fix">OK / Cancel</td><td class="fix">accept() or dismiss()</td></tr>
+            <tr><td><code>prompt()</code></td><td class="fix">prompt("?")</td><td class="fix">OK / Cancel + input</td><td class="fix">sendKeys() then accept()</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════ 9. ACTIONS CLASS -->
+<section class="sec" id="s-actions">
+  <div class="sec-head">
+    <span class="sec-icon">🖱️</span>
+    <span class="sec-title">Actions Class</span>
+    <span class="sec-when">For mouse gestures and keyboard combos that normal click/sendKeys can't do</span>
+  </div>
+  <div class="g2">
+
+    <div class="card">
+      <div class="card-top"><span class="card-title">Mouse Actions</span><span class="pill pill-cyan">Actions</span></div>
+      <div class="when-note">Hover to reveal tooltips or dropdown menus. Right-click for context menus. Drag-and-drop for sortable lists or file drop zones. Always end with .perform().</div>
+<pre><span class="tp">Actions</span> actions = <span class="kw">new</span> <span class="tp">Actions</span>(driver);
+
+<span class="cm">// ── Hover (triggers dropdown menus) ──</span>
+actions.<span class="mt">moveToElement</span>(menuItem).<span class="mt">perform</span>();
+
+<span class="cm">// ── Double click ──</span>
+actions.<span class="mt">doubleClick</span>(element).<span class="mt">perform</span>();
+
+<span class="cm">// ── Right-click (context menu) ──</span>
+actions.<span class="mt">contextClick</span>(element).<span class="mt">perform</span>();
+
+<span class="cm">// ── Drag and Drop ──</span>
+actions.<span class="mt">dragAndDrop</span>(source, target).<span class="mt">perform</span>();
+
+<span class="cm">// ── Drag by pixel offset ──</span>
+actions.<span class="mt">dragAndDropBy</span>(element, <span class="nm">100</span>, <span class="nm">0</span>).<span class="mt">perform</span>();
+
+<span class="cm">// ── Click and hold → move → release ──</span>
+actions.<span class="mt">clickAndHold</span>(source)
+       .<span class="mt">moveToElement</span>(target)
+       .<span class="mt">release</span>().<span class="mt">perform</span>();
+
+<span class="cm">// ── Move to offset from element center ──</span>
+actions.<span class="mt">moveToElement</span>(el, <span class="nm">10</span>, <span class="nm">20</span>).<span class="mt">perform</span>();
+
+<span class="cm">// ── Click at specific coordinates ──</span>
+actions.<span class="mt">moveToElement</span>(el).<span class="mt">click</span>().<span class="mt">perform</span>();</pre>
+    </div>
+
+    <div class="card">
+      <div class="card-top"><span class="card-title">Keyboard Actions & Scroll</span><span class="pill pill-cyan">Actions</span></div>
+      <div class="when-note">Use keyDown/keyUp for Ctrl+Click multi-select, Shift+Click range select. Use scrollToElement when an element is off-screen and clicking fails.</div>
+<pre><span class="tp">Actions</span> actions = <span class="kw">new</span> <span class="tp">Actions</span>(driver);
+
+<span class="cm">// ── Ctrl+Click multiple items ──</span>
+actions.<span class="mt">keyDown</span>(<span class="cn">Keys</span>.CONTROL)
+       .<span class="mt">click</span>(el1)
+       .<span class="mt">click</span>(el2)
+       .<span class="mt">click</span>(el3)
+       .<span class="mt">keyUp</span>(<span class="cn">Keys</span>.CONTROL).<span class="mt">perform</span>();
+
+<span class="cm">// ── Shift+Click range select ──</span>
+actions.<span class="mt">click</span>(firstEl)
+       .<span class="mt">keyDown</span>(<span class="cn">Keys</span>.SHIFT)
+       .<span class="mt">click</span>(lastEl)
+       .<span class="mt">keyUp</span>(<span class="cn">Keys</span>.SHIFT).<span class="mt">perform</span>();
+
+<span class="cm">// ── Chain actions ──</span>
+actions.<span class="mt">moveToElement</span>(menu)
+       .<span class="mt">click</span>()
+       .<span class="mt">pause</span>(<span class="tp">Duration</span>.<span class="mt">ofMillis</span>(<span class="nm">300</span>))
+       .<span class="mt">moveToElement</span>(subItem)
+       .<span class="mt">click</span>().<span class="mt">perform</span>();
+
+<span class="cm">// ── Scroll to element (Selenium 4) ──</span>
+actions.<span class="mt">scrollToElement</span>(element).<span class="mt">perform</span>();
+
+<span class="cm">// ── Scroll by pixels ──</span>
+actions.<span class="mt">scrollByAmount</span>(<span class="nm">0</span>, <span class="nm">500</span>).<span class="mt">perform</span>(); <span class="cm">// down 500px</span></pre>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════ 10. JS EXECUTOR -->
+<section class="sec" id="s-js">
+  <div class="sec-head">
+    <span class="sec-icon">⚙️</span>
+    <span class="sec-title">JavaScriptExecutor</span>
+    <span class="sec-when">Escape hatch — use when Selenium's built-in methods fail or can't reach the element</span>
+  </div>
+  <div class="g2">
+
+    <div class="card">
+      <div class="card-top"><span class="card-title">Common JS Executor Operations</span><span class="pill pill-purple">JSE</span></div>
+      <div class="when-note">Cast driver to JavascriptExecutor. Use JS click when normal click() fails (element hidden behind overlay). Use scrollIntoView when element is off-screen. Use to force-set values on read-only or date-picker inputs.</div>
+<pre><span class="tp">JavascriptExecutor</span> js =
+    (<span class="tp">JavascriptExecutor</span>) driver;
+
+<span class="cm">// ── Scroll element into view ──</span>
+js.<span class="mt">executeScript</span>(<span class="st">"arguments[0].scrollIntoView(true);"</span>, el);
+<span class="cm">// Center it on screen:</span>
+js.<span class="mt">executeScript</span>(
+    <span class="st">"arguments[0].scrollIntoView({block:'center'});"</span>, el);
+
+<span class="cm">// ── Click via JS (when normal click fails) ──</span>
+js.<span class="mt">executeScript</span>(<span class="st">"arguments[0].click();"</span>, el);
+
+<span class="cm">// ── Force set value (date pickers, readonly) ──</span>
+js.<span class="mt">executeScript</span>(
+    <span class="st">"arguments[0].value='2024-12-31';"</span>, dateInput);
+
+<span class="cm">// ── Remove readonly / disabled ──</span>
+js.<span class="mt">executeScript</span>(
+    <span class="st">"arguments[0].removeAttribute('readonly');"</span>, el);
+js.<span class="mt">executeScript</span>(
+    <span class="st">"arguments[0].removeAttribute('disabled');"</span>, el);
+
+<span class="cm">// ── Scroll page ──</span>
+js.<span class="mt">executeScript</span>(<span class="st">"window.scrollTo(0,0);"</span>);            <span class="cm">// top</span>
+js.<span class="mt">executeScript</span>(
+    <span class="st">"window.scrollTo(0,document.body.scrollHeight);"</span>); <span class="cm">// bottom</span>
+js.<span class="mt">executeScript</span>(<span class="st">"window.scrollBy(0,300);"</span>);          <span class="cm">// by px</span>
+
+<span class="cm">// ── Get return value ──</span>
+<span class="tp">String</span> title = (<span class="tp">String</span>) js.<span class="mt">executeScript</span>(
+    <span class="st">"return document.title;"</span>);
+<span class="tp">Long</span> scrollY = (<span class="tp">Long</span>) js.<span class="mt">executeScript</span>(
+    <span class="st">"return window.scrollY;"</span>);
+
+<span class="cm">// ── Highlight element (debug only) ──</span>
+js.<span class="mt">executeScript</span>(
+    <span class="st">"arguments[0].style.border='3px solid red';"</span>, el);</pre>
+    </div>
+
+    <div class="card">
+      <div class="card-top"><span class="card-title">When to Use JS vs Normal API</span><span class="pill pill-yellow">decision guide</span></div>
+      <div class="when-note">JS Executor is a workaround — use it only when needed, not as the default.</div>
+      <div class="compare">
+        <div class="compare-col">
+          <div class="compare-label good">✅ Use JS when</div>
+<pre" style="font-size:11.5px;padding:10px 14px;background:rgba(74,222,128,.03)">el is covered by overlay
+el is hidden / off-screen
+date picker won't accept sendKeys
+field is readonly/disabled
+need to scroll to exact px
+need browser-internal data
+  (title, scrollY, etc.)</pre>
+        </div>
+        <div class="compare-col" style="border-left:1px solid var(--border)">
+          <div class="compare-label bad">❌ Don't use JS when</div>
+<pre" style="font-size:11.5px;padding:10px 14px;background:rgba(248,113,113,.03)">normal click() works fine
+sendKeys() works fine
+element is just not waited for
+(use proper waits instead)
+overusing JS hides real bugs
+in your test</pre>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════ 11. SELECT -->
+<section class="sec" id="s-select">
+  <div class="sec-head">
+    <span class="sec-icon">📋</span>
+    <span class="sec-title">Dropdowns — Select Class</span>
+    <span class="sec-when">Only for HTML &lt;select&gt; elements — not custom div/ul dropdowns</span>
+  </div>
+  <div class="g2">
+
+    <div class="card">
+      <div class="card-top"><span class="card-title">Select — All Methods</span><span class="pill pill-cyan">Select</span></div>
+      <div class="when-note">Wrap the &lt;select&gt; WebElement in a Select object. Identify which method to use: visible text (label shown), value (HTML value attribute), or index (position, 0-based).</div>
+<pre><span class="tp">WebElement</span> dd = driver.<span class="mt">findElement</span>(
+    <span class="cn">By</span>.<span class="mt">id</span>(<span class="st">"country"</span>));
+<span class="tp">Select</span> sel = <span class="kw">new</span> <span class="tp">Select</span>(dd);
+
+<span class="cm">// ── Select ──</span>
+sel.<span class="mt">selectByVisibleText</span>(<span class="st">"India"</span>);  <span class="cm">// text shown</span>
+sel.<span class="mt">selectByValue</span>(<span class="st">"IN"</span>);         <span class="cm">// value attr</span>
+sel.<span class="mt">selectByIndex</span>(<span class="nm">2</span>);             <span class="cm">// 0-based index</span>
+
+<span class="cm">// ── Get selected ──</span>
+<span class="tp">String</span> selected = sel.<span class="mt">getFirstSelectedOption</span>().<span class="mt">getText</span>();
+<span class="tp">List</span>&lt;<span class="tp">WebElement</span>&gt; all = sel.<span class="mt">getAllSelectedOptions</span>();
+
+<span class="cm">// ── Get all options ──</span>
+<span class="tp">List</span>&lt;<span class="tp">WebElement</span>&gt; opts = sel.<span class="mt">getOptions</span>();
+<span class="kw">for</span> (<span class="tp">WebElement</span> o : opts)
+    <span class="tp">System</span>.out.<span class="mt">println</span>(o.<span class="mt">getText</span>());
+
+<span class="cm">// ── Multi-select ──</span>
+<span class="kw">boolean</span> multi = sel.<span class="mt">isMultiple</span>();
+sel.<span class="mt">selectByVisibleText</span>(<span class="st">"Java"</span>);
+sel.<span class="mt">selectByVisibleText</span>(<span class="st">"Python"</span>);
+sel.<span class="mt">deselectByVisibleText</span>(<span class="st">"Java"</span>);
+sel.<span class="mt">deselectAll</span>();</pre>
+    </div>
+
+    <div class="card">
+      <div class="card-top"><span class="card-title">Custom Dropdown (div/ul based)</span><span class="pill pill-yellow">non-select</span></div>
+      <div class="when-note">Most modern UIs use custom dropdowns (not &lt;select&gt;). The Select class won't work. Click to open, then find and click the option.</div>
+<pre><span class="cm">// Custom dropdown — e.g. Bootstrap, Material UI</span>
+<span class="cm">// Step 1: Click to open the dropdown</span>
+driver.<span class="mt">findElement</span>(<span class="cn">By</span>.<span class="mt">id</span>(<span class="st">"countryDropdown"</span>)).<span class="mt">click</span>();
+
+<span class="cm">// Step 2: Wait for options to appear</span>
+<span class="tp">WebDriverWait</span> wait = <span class="kw">new</span> <span class="tp">WebDriverWait</span>(
+    driver, <span class="tp">Duration</span>.<span class="mt">ofSeconds</span>(<span class="nm">5</span>));
+wait.<span class="mt">until</span>(<span class="cn">ExpectedConditions</span>
+    .<span class="mt">visibilityOfElementLocated</span>(
+        <span class="cn">By</span>.<span class="mt">cssSelector</span>(<span class="st">".dropdown-menu"</span>)));
+
+<span class="cm">// Step 3: Click the option by text</span>
+driver.<span class="mt">findElement</span>(<span class="cn">By</span>.<span class="mt">xpath</span>(
+    <span class="st">"//li[text()='India']"</span>)).<span class="mt">click</span>();</pre>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════ 12. FILE UPLOAD -->
+<section class="sec" id="s-files">
+  <div class="sec-head">
+    <span class="sec-icon">📁</span>
+    <span class="sec-title">File Upload</span>
+    <span class="sec-when">When a test needs to upload a file via &lt;input type="file"&gt;</span>
+  </div>
+  <div class="g2">
+
+    <div class="card">
+      <div class="card-top"><span class="card-title">File Upload — sendKeys Approach</span><span class="pill pill-green">✅ preferred</span></div>
+      <div class="when-note">For &lt;input type="file"&gt; elements, don't click and use OS dialog (Selenium can't interact with OS dialogs). Use sendKeys() with the absolute file path — Selenium handles the upload dialog internally.</div>
+<pre><span class="cm">// Get absolute path to file</span>
+<span class="tp">String</span> filePath = <span class="tp">System</span>.<span class="mt">getProperty</span>(<span class="st">"user.dir"</span>)
+    + <span class="st">"/src/test/resources/testfile.pdf"</span>;
+
+<span class="cm">// Find the file input (may be hidden)</span>
+<span class="tp">WebElement</span> fileInput = driver.<span class="mt">findElement</span>(
+    <span class="cn">By</span>.<span class="mt">cssSelector</span>(<span class="st">"input[type='file']"</span>));
+
+<span class="cm">// Send the file path directly</span>
+fileInput.<span class="mt">sendKeys</span>(filePath);
+
+<span class="cm">// If input is display:none, make visible first</span>
+((<span class="tp">JavascriptExecutor</span>) driver).<span class="mt">executeScript</span>(
+    <span class="st">"arguments[0].style.display='block';"</span>, fileInput);
+fileInput.<span class="mt">sendKeys</span>(filePath);</pre>
+    </div>
+
+    <div class="card">
+      <div class="card-top"><span class="card-title">File Download — Folder Config</span><span class="pill pill-yellow">ChromeOptions</span></div>
+      <div class="when-note">To control where Chrome saves downloaded files and prevent the download dialog, set the prefs in ChromeOptions before starting the driver.</div>
+<pre><span class="tp">Map</span>&lt;<span class="tp">String</span>, <span class="tp">Object</span>&gt; prefs = <span class="kw">new</span> <span class="tp">HashMap</span>&lt;&gt;();
+prefs.<span class="mt">put</span>(<span class="st">"download.default_directory"</span>,
+    <span class="st">"/path/to/downloads"</span>);
+prefs.<span class="mt">put</span>(<span class="st">"download.prompt_for_download"</span>, <span class="kw">false</span>);
+prefs.<span class="mt">put</span>(<span class="st">"plugins.always_open_pdf_externally"</span>, <span class="kw">true</span>);
+
+<span class="tp">ChromeOptions</span> opts = <span class="kw">new</span> <span class="tp">ChromeOptions</span>();
+opts.<span class="mt">setExperimentalOption</span>(<span class="st">"prefs"</span>, prefs);
+<span class="tp">WebDriver</span> driver = <span class="kw">new</span> <span class="tp">ChromeDriver</span>(opts);</pre>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════ 13. COOKIES -->
+<section class="sec" id="s-cookies">
+  <div class="sec-head">
+    <span class="sec-icon">🍪</span>
+    <span class="sec-title">Cookies</span>
+    <span class="sec-when">Session management — inject cookies to skip login in tests</span>
+  </div>
+  <div class="g2">
+
+    <div class="card">
+      <div class="card-top"><span class="card-title">Cookie Operations</span><span class="pill pill-cyan">manage().cookie</span></div>
+      <div class="when-note">Best use: Login once via API, grab the session cookie, inject it before each test — avoids repeating UI login steps.</div>
+<pre><span class="cm">// Read cookies</span>
+<span class="tp">Set</span>&lt;<span class="tp">Cookie</span>&gt; all = driver.<span class="mt">manage</span>().<span class="mt">getCookies</span>();
+<span class="tp">Cookie</span> c = driver.<span class="mt">manage</span>().<span class="mt">getCookieNamed</span>(<span class="st">"sessionId"</span>);
+<span class="tp">String</span> val = c.<span class="mt">getValue</span>();
+<span class="tp">String</span> domain = c.<span class="mt">getDomain</span>();
+
+<span class="cm">// Add cookie (must navigate to domain first)</span>
+driver.<span class="mt">get</span>(<span class="st">"https://app.example.com"</span>);
+driver.<span class="mt">manage</span>().<span class="mt">addCookie</span>(
+    <span class="kw">new</span> <span class="tp">Cookie</span>(<span class="st">"sessionId"</span>, <span class="st">"abc123"</span>));
+driver.<span class="mt">navigate</span>().<span class="mt">refresh</span>();  <span class="cm">// reload with cookie</span>
+
+<span class="cm">// Delete cookies</span>
+driver.<span class="mt">manage</span>().<span class="mt">deleteCookieNamed</span>(<span class="st">"sessionId"</span>);
+driver.<span class="mt">manage</span>().<span class="mt">deleteCookie</span>(cookieObject);
+driver.<span class="mt">manage</span>().<span class="mt">deleteAllCookies</span>();</pre>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════ 14. SCREENSHOTS -->
+<section class="sec" id="s-screenshots">
+  <div class="sec-head">
+    <span class="sec-icon">📸</span>
+    <span class="sec-title">Screenshots</span>
+    <span class="sec-when">Capture on test failure to see what went wrong at that moment</span>
+  </div>
+  <div class="g2">
+
+    <div class="card">
+      <div class="card-top"><span class="card-title">Full Page & Element Screenshot</span><span class="pill pill-cyan">TakesScreenshot</span></div>
+      <div class="when-note">Capture on test failure in @AfterMethod using ITestResult. Element-level screenshot (Selenium 4) is great for capturing just a chart or specific UI region.</div>
+<pre><span class="cm">// ── Full page screenshot ──</span>
+<span class="tp">File</span> src = ((<span class="tp">TakesScreenshot</span>) driver)
+    .<span class="mt">getScreenshotAs</span>(<span class="cn">OutputType</span>.FILE);
+<span class="tp">FileUtils</span>.<span class="mt">copyFile</span>(src,
+    <span class="kw">new</span> <span class="tp">File</span>(<span class="st">"screenshots/test_"</span> +
+        <span class="tp">System</span>.<span class="mt">currentTimeMillis</span>() + <span class="st">".png"</span>));
+
+<span class="cm">// ── Element-only screenshot (Selenium 4) ──</span>
+<span class="tp">WebElement</span> chart = driver.<span class="mt">findElement</span>(
+    <span class="cn">By</span>.<span class="mt">id</span>(<span class="st">"revenueChart"</span>));
+<span class="tp">File</span> elFile = chart.<span class="mt">getScreenshotAs</span>(<span class="cn">OutputType</span>.FILE);
+<span class="tp">FileUtils</span>.<span class="mt">copyFile</span>(elFile,
+    <span class="kw">new</span> <span class="tp">File</span>(<span class="st">"screenshots/chart.png"</span>));
+
+<span class="cm">// ── As byte array (for Allure/ExtentReports) ──</span>
+<span class="kw">byte</span>[] bytes = ((<span class="tp">TakesScreenshot</span>) driver)
+    .<span class="mt">getScreenshotAs</span>(<span class="cn">OutputType</span>.BYTES);</pre>
+    </div>
+
+    <div class="card">
+      <div class="card-top"><span class="card-title">Auto-Screenshot on Failure</span><span class="pill pill-green">pattern</span></div>
+      <div class="when-note">Put this in @AfterMethod so every failed test saves a screenshot automatically.</div>
+<pre><span class="cn">@AfterMethod</span>
+<span class="kw">public void</span> <span class="mt">tearDown</span>(<span class="tp">ITestResult</span> result) {
+    <span class="kw">if</span> (result.<span class="mt">getStatus</span>() ==
+            <span class="cn">ITestResult</span>.FAILURE) {
+        <span class="tp">File</span> src = ((<span class="tp">TakesScreenshot</span>) driver)
+            .<span class="mt">getScreenshotAs</span>(<span class="cn">OutputType</span>.FILE);
+        <span class="tp">String</span> name = result.<span class="mt">getName</span>()
+            + <span class="st">"_"</span> + <span class="tp">System</span>.<span class="mt">currentTimeMillis</span>();
+        <span class="tp">FileUtils</span>.<span class="mt">copyFile</span>(src,
+            <span class="kw">new</span> <span class="tp">File</span>(<span class="st">"screenshots/"</span>+name+<span class="st">".png"</span>));
+    }
+    driver.<span class="mt">quit</span>();
+}</pre>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════ 15. TESTNG -->
+<section class="sec" id="s-testng">
+  <div class="sec-head">
+    <span class="sec-icon">🧪</span>
+    <span class="sec-title">TestNG — Complete Guide</span>
+    <span class="sec-when">Every annotation, attribute, assertion, listener, and parallel trick you need</span>
+  </div>
+
+  <!-- ROW 1: Lifecycle + @Test attrs -->
+  <div class="g2">
+
+    <div class="card">
+      <div class="card-top"><span class="card-title">Annotation Lifecycle — Execution Order</span><span class="pill pill-cyan">TestNG</span></div>
+      <div class="when-note">Memorize this order. @BeforeMethod / @AfterMethod wrap every single @Test. @BeforeClass runs once per class. Mix them wrong and your driver won't exist when your test runs.</div>
+      <div class="flow">
+        <div class="flow-step"><div class="flow-dot">1</div><div class="flow-body"><strong>@BeforeSuite</strong><span>Runs once before everything. Use for: starting test servers, DB seeds, global report setup.</span></div></div>
+        <div class="flow-step"><div class="flow-dot">2</div><div class="flow-body"><strong>@BeforeTest</strong><span>Before every &lt;test&gt; tag in testng.xml. Use for: browser profile selection per test group.</span></div></div>
+        <div class="flow-step"><div class="flow-dot">3</div><div class="flow-body"><strong>@BeforeClass</strong><span>Once before all @Test methods in this class. Use for: one-time page navigation, shared login.</span></div></div>
+        <div class="flow-step"><div class="flow-dot">4</div><div class="flow-body"><strong>@BeforeMethod</strong><code>← Driver init goes here</code><span>Before every @Test. Launch browser, navigate to base URL.</span></div></div>
+        <div class="flow-step"><div class="flow-dot" style="background:var(--cyan);color:#000">T</div><div class="flow-body"><strong>@Test</strong><span>The actual test method. Should only contain test logic + assertions.</span></div></div>
+        <div class="flow-step"><div class="flow-dot">5</div><div class="flow-body"><strong>@AfterMethod</strong><code>← driver.quit() goes here</code><span>After every @Test. Close browser. Take screenshot on failure. Reset state.</span></div></div>
+        <div class="flow-step"><div class="flow-dot">6</div><div class="flow-body"><strong>@AfterClass</strong><span>Once after all @Test methods. Use for: class-level cleanup.</span></div></div>
+        <div class="flow-step"><div class="flow-dot">7</div><div class="flow-body"><strong>@AfterTest</strong><span>After the &lt;test&gt; block finishes.</span></div></div>
+        <div class="flow-step"><div class="flow-dot">8</div><div class="flow-body"><strong>@AfterSuite</strong><span>Runs once after everything. Use for: sending email reports, closing DB.</span></div></div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:14px">
+
+      <div class="card">
+        <div class="card-top"><span class="card-title">@Test — All Attributes</span><span class="pill pill-cyan">@Test</span></div>
+        <div class="when-note">Every attribute you can put on @Test and when to use each one.</div>
+<pre><span class="cn">@Test</span>(priority = <span class="nm">1</span>)
+<span class="cm">// Lower number runs first. Default = 0.
+// Tests with same priority run alphabetically.</span>
+
+<span class="cn">@Test</span>(enabled = <span class="kw">false</span>)
+<span class="cm">// Skips this test — like commenting it out cleanly.</span>
+
+<span class="cn">@Test</span>(groups = {<span class="st">"smoke"</span>, <span class="st">"login"</span>})
+<span class="cm">// Tag test into groups — run only smoke in CI.</span>
+
+<span class="cn">@Test</span>(dependsOnMethods = {<span class="st">"testLogin"</span>})
+<span class="cm">// This test only runs if testLogin PASSED.
+// If testLogin failed, this is SKIPPED.</span>
+
+<span class="cn">@Test</span>(dependsOnGroups = {<span class="st">"smoke"</span>})
+<span class="cm">// Runs only if all tests in "smoke" group passed.</span>
+
+<span class="cn">@Test</span>(timeOut = <span class="nm">10000</span>)
+<span class="cm">// Fails test if it takes more than 10 seconds.</span>
+
+<span class="cn">@Test</span>(invocationCount = <span class="nm">5</span>)
+<span class="cm">// Runs this test 5 times — good for flaky test detection.</span>
+
+<span class="cn">@Test</span>(threadPoolSize = <span class="nm">3</span>, invocationCount = <span class="nm">9</span>)
+<span class="cm">// Runs 9 invocations across 3 threads in parallel.</span>
+
+<span class="cn">@Test</span>(dataProvider = <span class="st">"loginData"</span>)
+<span class="cm">// Connect to a @DataProvider method.</span>
+
+<span class="cn">@Test</span>(dataProvider = <span class="st">"data"</span>, dataProviderClass = <span class="tp">TestData</span>.<span class="kw">class</span>)
+<span class="cm">// DataProvider is in a different class.</span>
+
+<span class="cn">@Test</span>(description = <span class="st">"Verify login with valid credentials"</span>)
+<span class="cm">// Shows in TestNG reports — always add this!</span>
+
+<span class="cn">@Test</span>(expectedExceptions = <span class="tp">IllegalArgumentException</span>.<span class="kw">class</span>)
+<span class="cm">// Test PASSES only if this exception is thrown.</span>
+
+<span class="cn">@Test</span>(expectedExceptionsMessageRegExp = <span class="st">".*invalid.*"</span>)
+<span class="cm">// Also validates the exception message matches regex.</span>
+
+<span class="cn">@Test</span>(alwaysRun = <span class="kw">true</span>)
+<span class="cm">// Runs even if methods it dependsOn failed.</span>
+
+<span class="cn">@Test</span>(singleThreaded = <span class="kw">true</span>)
+<span class="cm">// All @Test methods in this class run in one thread.</span></pre>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ROW 2: Assertions -->
+  <div class="g2" style="margin-top:14px">
+
+    <div class="card">
+      <div class="card-top"><span class="card-title">Hard Assertions — Assert.*</span><span class="pill pill-red">stops on fail</span></div>
+      <div class="when-note">Use for critical checks where failing means there's no point running the rest of the test. Test stops immediately at the first failed assertion.</div>
+<pre><span class="cm">// ── Equality ──</span>
+<span class="cn">Assert</span>.<span class="mt">assertEquals</span>(actual, expected);
+<span class="cn">Assert</span>.<span class="mt">assertEquals</span>(actual, expected, <span class="st">"Failure message"</span>);
+<span class="cn">Assert</span>.<span class="mt">assertNotEquals</span>(actual, notExpected);
+
+<span class="cm">// ── Boolean ──</span>
+<span class="cn">Assert</span>.<span class="mt">assertTrue</span>(condition);
+<span class="cn">Assert</span>.<span class="mt">assertTrue</span>(condition, <span class="st">"Should be true because..."</span>);
+<span class="cn">Assert</span>.<span class="mt">assertFalse</span>(condition);
+
+<span class="cm">// ── Null checks ──</span>
+<span class="cn">Assert</span>.<span class="mt">assertNull</span>(obj);
+<span class="cn">Assert</span>.<span class="mt">assertNotNull</span>(obj);
+<span class="cn">Assert</span>.<span class="mt">assertNotNull</span>(obj, <span class="st">"Object must not be null"</span>);
+
+<span class="cm">// ── Same object reference ──</span>
+<span class="cn">Assert</span>.<span class="mt">assertSame</span>(obj1, obj2);     <span class="cm">// same reference</span>
+<span class="cn">Assert</span>.<span class="mt">assertNotSame</span>(obj1, obj2);  <span class="cm">// different reference</span>
+
+<span class="cm">// ── Arrays / Collections ──</span>
+<span class="cn">Assert</span>.<span class="mt">assertEquals</span>(actualArr, expectedArr);
+<span class="cn">Assert</span>.<span class="mt">assertEquals</span>(actualList, expectedList);
+
+<span class="cm">// ── Fail manually ──</span>
+<span class="cn">Assert</span>.<span class="mt">fail</span>(<span class="st">"This should never be reached"</span>);
+
+<span class="cm">// ── Common patterns ──</span>
+<span class="cn">Assert</span>.<span class="mt">assertEquals</span>(driver.<span class="mt">getTitle</span>(), <span class="st">"Dashboard"</span>);
+<span class="cn">Assert</span>.<span class="mt">assertTrue</span>(driver.<span class="mt">getCurrentUrl</span>().<span class="mt">contains</span>(<span class="st">"home"</span>));
+<span class="cn">Assert</span>.<span class="mt">assertTrue</span>(element.<span class="mt">isDisplayed</span>(), <span class="st">"Button must be visible"</span>);
+<span class="cn">Assert</span>.<span class="mt">assertEquals</span>(element.<span class="mt">getText</span>().<span class="mt">trim</span>(), <span class="st">"Submit"</span>);</pre>
+    </div>
+
+    <div class="card">
+      <div class="card-top"><span class="card-title">Soft Assertions — SoftAssert</span><span class="pill pill-green">collects all failures</span></div>
+      <div class="when-note">Use when you want to verify multiple things on a page and see ALL failures at once — e.g., checking every field on a form, or every item in a list. Must call assertAll() at the end.</div>
+<pre><span class="cm">// Create ONE SoftAssert per test method</span>
+<span class="tp">SoftAssert</span> soft = <span class="kw">new</span> <span class="tp">SoftAssert</span>();
+
+<span class="cm">// ── Make multiple checks — none stop the test ──</span>
+soft.<span class="mt">assertEquals</span>(driver.<span class="mt">getTitle</span>(), <span class="st">"Dashboard"</span>);
+soft.<span class="mt">assertTrue</span>(header.<span class="mt">isDisplayed</span>(), <span class="st">"Header visible"</span>);
+soft.<span class="mt">assertFalse</span>(errorBanner.<span class="mt">isDisplayed</span>(), <span class="st">"No error"</span>);
+soft.<span class="mt">assertEquals</span>(userGreeting.<span class="mt">getText</span>(), <span class="st">"Hi, John"</span>);
+soft.<span class="mt">assertNotNull</span>(profileImg.<span class="mt">getAttribute</span>(<span class="st">"src"</span>));
+soft.<span class="mt">assertTrue</span>(driver.<span class="mt">getCurrentUrl</span>().<span class="mt">contains</span>(<span class="st">"dashboard"</span>));
+
+<span class="cm">// ── CRITICAL: MUST call this at end ──</span>
+<span class="cm">// Throws AssertionError with ALL failures listed</span>
+soft.<span class="mt">assertAll</span>();
+
+<span class="cm">// ── Common mistake to avoid ──</span>
+<span class="cm">// DO NOT share SoftAssert between test methods!</span>
+<span class="cm">// Create new SoftAssert() inside each @Test.</span></pre>
+      <div class="banner banner-warn" style="margin:0 14px 12px">
+        <span class="bi">⚠️</span>
+        <div>If you forget <code style="color:var(--yellow)">soft.assertAll()</code> — the test always passes even when assertions fail. Never skip it.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ROW 3: DataProvider + Groups -->
+  <div class="g2" style="margin-top:14px">
+
+    <div class="card">
+      <div class="card-top"><span class="card-title">DataProvider — Data-Driven Testing</span><span class="pill pill-green">DDT</span></div>
+      <div class="when-note">Use when the same test must run with multiple data sets — login combinations, form fields, boundary values. TestNG runs one @Test iteration per data row automatically.</div>
+<pre><span class="cm">// ── Basic 2D array ──</span>
+<span class="cn">@DataProvider</span>(name = <span class="st">"loginData"</span>)
+<span class="kw">public</span> <span class="tp">Object</span>[][] <span class="mt">provideLoginData</span>() {
+    <span class="kw">return new</span> <span class="tp">Object</span>[][] {
+        {<span class="st">"admin@site.com"</span>,  <span class="st">"admin123"</span>, <span class="kw">true</span>,  <span class="st">"Dashboard"</span>},
+        {<span class="st">"user@site.com"</span>,   <span class="st">"pass123"</span>,  <span class="kw">true</span>,  <span class="st">"Home"</span>      },
+        {<span class="st">"wrong@site.com"</span>,  <span class="st">"badpass"</span>,  <span class="kw">false</span>, <span class="st">"Login"</span>     },
+        {<span class="st">""</span>,                <span class="st">""</span>,          <span class="kw">false</span>, <span class="st">"Login"</span>     }
+    };
+}
+
+<span class="cn">@Test</span>(dataProvider = <span class="st">"loginData"</span>,
+      description = <span class="st">"Login with various credentials"</span>)
+<span class="kw">public void</span> <span class="mt">testLogin</span>(<span class="tp">String</span> email, <span class="tp">String</span> pass,
+        <span class="kw">boolean</span> expectSuccess, <span class="tp">String</span> expectedPage) {
+    loginPage.<span class="mt">login</span>(email, pass);
+    <span class="kw">if</span> (expectSuccess) {
+        <span class="cn">Assert</span>.<span class="mt">assertTrue</span>(driver.<span class="mt">getTitle</span>().<span class="mt">contains</span>(expectedPage));
+    } <span class="kw">else</span> {
+        <span class="cn">Assert</span>.<span class="mt">assertTrue</span>(loginPage.<span class="mt">getErrorMsg</span>().<span class="mt">isDisplayed</span>());
+    }
+}
+
+<span class="cm">// ── DataProvider in separate class ──</span>
+<span class="cn">@DataProvider</span>(name = <span class="st">"searchTerms"</span>, parallel = <span class="kw">true</span>)
+<span class="kw">public</span> <span class="tp">Object</span>[][] <span class="mt">searchData</span>() {
+    <span class="kw">return new</span> <span class="tp">Object</span>[][] {
+        {<span class="st">"selenium"</span>}, {<span class="st">"java"</span>}, {<span class="st">"testng"</span>}
+    };
+}
+<span class="cm">// parallel=true → each row runs in its own thread</span>
+
+<span class="cm">// ── Consume from another class ──</span>
+<span class="cn">@Test</span>(dataProvider = <span class="st">"searchTerms"</span>,
+      dataProviderClass = <span class="tp">TestData</span>.<span class="kw">class</span>)
+<span class="kw">public void</span> <span class="mt">testSearch</span>(<span class="tp">String</span> term) {
+    searchPage.<span class="mt">search</span>(term);
+    <span class="cn">Assert</span>.<span class="mt">assertTrue</span>(searchPage.<span class="mt">hasResults</span>());
+}
+
+<span class="cm">// ── Read from Excel (using Apache POI) ──</span>
+<span class="cn">@DataProvider</span>(name = <span class="st">"excelData"</span>)
+<span class="kw">public</span> <span class="tp">Object</span>[][] <span class="mt">fromExcel</span>() <span class="kw">throws</span> <span class="tp">Exception</span> {
+    <span class="kw">return</span> <span class="tp">ExcelUtils</span>.<span class="mt">getData</span>(<span class="st">"testdata.xlsx"</span>, <span class="st">"Sheet1"</span>);
+}</pre>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:14px">
+
+      <div class="card">
+        <div class="card-top"><span class="card-title">Groups — Organise & Filter Tests</span><span class="pill pill-yellow">groups</span></div>
+        <div class="when-note">Groups let you run only relevant tests — run "smoke" in CI, "regression" nightly, exclude "wip" always.</div>
+<pre><span class="cm">// ── Tag tests with groups ──</span>
+<span class="cn">@Test</span>(groups = {<span class="st">"smoke"</span>, <span class="st">"auth"</span>})
+<span class="kw">public void</span> <span class="mt">testLogin</span>() { ... }
+
+<span class="cn">@Test</span>(groups = {<span class="st">"regression"</span>, <span class="st">"auth"</span>})
+<span class="kw">public void</span> <span class="mt">testForgotPassword</span>() { ... }
+
+<span class="cn">@Test</span>(groups = <span class="st">"wip"</span>)  <span class="cm">// work in progress</span>
+<span class="kw">public void</span> <span class="mt">testNewFeature</span>() { ... }
+
+<span class="cm">// ── testng.xml: run only smoke, exclude wip ──</span>
+&lt;groups&gt;
+  &lt;run&gt;
+    &lt;include name=<span class="st">"smoke"</span>/&gt;
+    &lt;exclude name=<span class="st">"wip"</span>/&gt;
+  &lt;/run&gt;
+&lt;/groups&gt;</pre>
+      </div>
+
+      <div class="card">
+        <div class="card-top"><span class="card-title">dependsOnMethods & dependsOnGroups</span><span class="pill pill-orange">dependencies</span></div>
+        <div class="when-note">Use when test B only makes sense if test A passed — e.g., "add to cart" depends on "login". If A fails, B is auto-marked SKIP (not FAIL).</div>
+<pre><span class="cn">@Test</span>(groups = <span class="st">"auth"</span>)
+<span class="kw">public void</span> <span class="mt">testLogin</span>() {
+    loginPage.<span class="mt">login</span>(<span class="st">"user"</span>, <span class="st">"pass"</span>);
+    <span class="cn">Assert</span>.<span class="mt">assertTrue</span>(homePage.<span class="mt">isLoaded</span>());
+}
+
+<span class="cm">// Only runs if testLogin PASSED</span>
+<span class="cn">@Test</span>(dependsOnMethods = {<span class="st">"testLogin"</span>})
+<span class="kw">public void</span> <span class="mt">testAddToCart</span>() { ... }
+
+<span class="cm">// Only runs if entire "auth" group passed</span>
+<span class="cn">@Test</span>(dependsOnGroups = {<span class="st">"auth"</span>})
+<span class="kw">public void</span> <span class="mt">testCheckout</span>() { ... }
+
+<span class="cm">// alwaysRun = true → run even if dep failed</span>
+<span class="cn">@Test</span>(dependsOnMethods = {<span class="st">"testLogin"</span>},
+      alwaysRun = <span class="kw">true</span>)
+<span class="kw">public void</span> <span class="mt">testLogout</span>() { ... }</pre>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ROW 4: Parallel + Listeners + Parameters -->
+  <div class="g2" style="margin-top:14px">
+
+    <div class="card">
+      <div class="card-top"><span class="card-title">Parallel Execution + testng.xml</span><span class="pill pill-purple">parallel</span></div>
+      <div class="when-note">Parallel execution cuts total test time drastically. Use ThreadLocal&lt;WebDriver&gt; when running parallel — each thread needs its own driver instance.</div>
+<pre><span class="cm">&lt;!-- testng.xml — full example ──</span>
+&lt;suite name=<span class="st">"RegressionSuite"</span>
+       parallel=<span class="st">"methods"</span>
+       thread-count=<span class="st">"4"</span>
+       verbose=<span class="st">"2"</span>&gt;
+
+  &lt;listeners&gt;
+    &lt;listener class-name=<span class="st">"listeners.TestListener"</span>/&gt;
+  &lt;/listeners&gt;
+
+  &lt;test name=<span class="st">"SmokeTests"</span>&gt;
+    &lt;parameter name=<span class="st">"browser"</span> value=<span class="st">"chrome"</span>/&gt;
+    &lt;groups&gt;
+      &lt;run&gt;
+        &lt;include name=<span class="st">"smoke"</span>/&gt;
+      &lt;/run&gt;
+    &lt;/groups&gt;
+    &lt;classes&gt;
+      &lt;class name=<span class="st">"tests.LoginTest"</span>/&gt;
+      &lt;class name=<span class="st">"tests.SearchTest"</span>/&gt;
+    &lt;/classes&gt;
+  &lt;/test&gt;
+
+  &lt;test name=<span class="st">"RegressionTests"</span>&gt;
+    &lt;parameter name=<span class="st">"browser"</span> value=<span class="st">"firefox"</span>/&gt;
+    &lt;packages&gt;
+      &lt;package name=<span class="st">"tests.regression"</span>/&gt;
+    &lt;/packages&gt;
+  &lt;/test&gt;
+
+&lt;/suite&gt;
+
+<span class="cm">// parallel options:
+//  "methods"  → each @Test method in own thread
+//  "classes"  → each class in own thread
+//  "tests"    → each &lt;test&gt; tag in own thread
+//  "none"     → sequential (default)</span></pre>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:14px">
+
+      <div class="card">
+        <div class="card-top"><span class="card-title">@Parameters — From testng.xml</span><span class="pill pill-cyan">params</span></div>
+        <div class="when-note">Pass browser name, environment URL, or any config value from testng.xml into your test/setup method. No hardcoding.</div>
+<pre><span class="cm">// In testng.xml:</span>
+&lt;parameter name=<span class="st">"browser"</span> value=<span class="st">"chrome"</span>/&gt;
+&lt;parameter name=<span class="st">"baseUrl"</span> value=<span class="st">"https://staging.app.com"</span>/&gt;
+
+<span class="cm">// In Java — inject into method:</span>
+<span class="cn">@Parameters</span>({<span class="st">"browser"</span>, <span class="st">"baseUrl"</span>})
+<span class="cn">@BeforeMethod</span>
+<span class="kw">public void</span> <span class="mt">setUp</span>(<span class="tp">String</span> browser, <span class="tp">String</span> baseUrl) {
+    <span class="kw">switch</span> (browser.<span class="mt">toLowerCase</span>()) {
+        <span class="kw">case</span> <span class="st">"firefox"</span>:
+            <span class="tp">WebDriverManager</span>.<span class="mt">firefoxdriver</span>().<span class="mt">setup</span>();
+            driver = <span class="kw">new</span> <span class="tp">FirefoxDriver</span>(); <span class="kw">break</span>;
+        <span class="kw">default</span>:
+            <span class="tp">WebDriverManager</span>.<span class="mt">chromedriver</span>().<span class="mt">setup</span>();
+            driver = <span class="kw">new</span> <span class="tp">ChromeDriver</span>();
+    }
+    driver.<span class="mt">get</span>(baseUrl);
+}
+
+<span class="cm">// Optional parameter (won't fail if missing)</span>
+<span class="cn">@Parameters</span>({<span class="st">"env"</span>})
+<span class="cn">@BeforeMethod</span>
+<span class="kw">public void</span> <span class="mt">setEnv</span>(@<span class="tp">Optional</span>(<span class="st">"staging"</span>) <span class="tp">String</span> env) {
+    <span class="tp">System</span>.out.<span class="mt">println</span>(<span class="st">"Running on: "</span> + env);
+}</pre>
+      </div>
+
+      <div class="card">
+        <div class="card-top"><span class="card-title">ThreadLocal Driver — Safe Parallel Tests</span><span class="pill pill-purple">parallel safe</span></div>
+        <div class="when-note">When parallel=methods or parallel=classes, each thread needs its OWN WebDriver. ThreadLocal gives each thread a separate driver instance automatically.</div>
+<pre><span class="kw">public class</span> <span class="tp">DriverManager</span> {
+    <span class="kw">private static final</span> <span class="tp">ThreadLocal</span>&lt;<span class="tp">WebDriver</span>&gt;
+        driverTL = <span class="kw">new</span> <span class="tp">ThreadLocal</span>&lt;&gt;();
+
+    <span class="kw">public static void</span> <span class="mt">init</span>(<span class="tp">String</span> browser) {
+        <span class="tp">WebDriver</span> d;
+        <span class="kw">if</span> (browser.<span class="mt">equals</span>(<span class="st">"firefox"</span>)) {
+            <span class="tp">WebDriverManager</span>.<span class="mt">firefoxdriver</span>().<span class="mt">setup</span>();
+            d = <span class="kw">new</span> <span class="tp">FirefoxDriver</span>();
+        } <span class="kw">else</span> {
+            <span class="tp">WebDriverManager</span>.<span class="mt">chromedriver</span>().<span class="mt">setup</span>();
+            d = <span class="kw">new</span> <span class="tp">ChromeDriver</span>();
+        }
+        driverTL.<span class="mt">set</span>(d);
+    }
+
+    <span class="kw">public static</span> <span class="tp">WebDriver</span> <span class="mt">getDriver</span>() {
+        <span class="kw">return</span> driverTL.<span class="mt">get</span>();
+    }
+
+    <span class="kw">public static void</span> <span class="mt">quit</span>() {
+        driverTL.<span class="mt">get</span>().<span class="mt">quit</span>();
+        driverTL.<span class="mt">remove</span>(); <span class="cm">// prevent memory leak!</span>
+    }
+}</pre>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ROW 5: ITestListener -->
+  <div class="g2" style="margin-top:14px">
+
+    <div class="card">
+      <div class="card-top"><span class="card-title">ITestListener — Custom Listener</span><span class="pill pill-purple">listener</span></div>
+      <div class="when-note">Implement ITestListener to hook into test events — auto-screenshot on failure, custom logging, report integration (Allure, ExtentReports). Register in testng.xml or via @Listeners annotation.</div>
+<pre><span class="kw">public class</span> <span class="tp">TestListener</span> <span class="kw">implements</span> <span class="tp">ITestListener</span> {
+
+    <span class="cn">@Override</span>
+    <span class="kw">public void</span> <span class="mt">onTestStart</span>(<span class="tp">ITestResult</span> r) {
+        <span class="tp">System</span>.out.<span class="mt">println</span>(<span class="st">"▶ START: "</span> + r.<span class="mt">getName</span>());
+    }
+
+    <span class="cn">@Override</span>
+    <span class="kw">public void</span> <span class="mt">onTestSuccess</span>(<span class="tp">ITestResult</span> r) {
+        <span class="tp">System</span>.out.<span class="mt">println</span>(<span class="st">"✅ PASS: "</span> + r.<span class="mt">getName</span>());
+    }
+
+    <span class="cn">@Override</span>
+    <span class="kw">public void</span> <span class="mt">onTestFailure</span>(<span class="tp">ITestResult</span> r) {
+        <span class="tp">System</span>.out.<span class="mt">println</span>(<span class="st">"❌ FAIL: "</span> + r.<span class="mt">getName</span>());
+        <span class="cm">// Auto screenshot on any failure</span>
+        <span class="tp">WebDriver</span> driver = <span class="tp">DriverManager</span>.<span class="mt">getDriver</span>();
+        <span class="kw">if</span> (driver != <span class="kw">null</span>) {
+            <span class="kw">try</span> {
+                <span class="tp">File</span> f = ((<span class="tp">TakesScreenshot</span>) driver)
+                    .<span class="mt">getScreenshotAs</span>(<span class="cn">OutputType</span>.FILE);
+                <span class="tp">FileUtils</span>.<span class="mt">copyFile</span>(f, <span class="kw">new</span> <span class="tp">File</span>(
+                    <span class="st">"screenshots/"</span> + r.<span class="mt">getName</span>() + <span class="st">".png"</span>));
+            } <span class="kw">catch</span> (<span class="tp">Exception</span> e) { e.<span class="mt">printStackTrace</span>(); }
+        }
+    }
+
+    <span class="cn">@Override</span>
+    <span class="kw">public void</span> <span class="mt">onTestSkipped</span>(<span class="tp">ITestResult</span> r) {
+        <span class="tp">System</span>.out.<span class="mt">println</span>(<span class="st">"⏭ SKIP: "</span> + r.<span class="mt">getName</span>());
+    }
+
+    <span class="cn">@Override</span>
+    <span class="kw">public void</span> <span class="mt">onFinish</span>(<span class="tp">ITestContext</span> ctx) {
+        <span class="tp">System</span>.out.<span class="mt">println</span>(<span class="st">"Suite done. Passed: "</span>
+            + ctx.<span class="mt">getPassedTests</span>().<span class="mt">size</span>()
+            + <span class="st">" Failed: "</span>
+            + ctx.<span class="mt">getFailedTests</span>().<span class="mt">size</span>());
+    }
+    <span class="cm">// Also available: onStart, onTestFailedButWithinSuccessPercentage</span>
+}
+
+<span class="cm">// ── Attach to a class ──</span>
+<span class="cn">@Listeners</span>(<span class="tp">TestListener</span>.<span class="kw">class</span>)
+<span class="kw">public class</span> <span class="tp">LoginTest</span> <span class="kw">extends</span> <span class="tp">BaseTest</span> { ... }
+
+<span class="cm">// ── Or register globally in testng.xml ──</span>
+&lt;listeners&gt;
+  &lt;listener class-name=<span class="st">"listeners.TestListener"</span>/&gt;
+&lt;/listeners&gt;</pre>
+    </div>
+
+    <div class="card">
+      <div class="card-top"><span class="card-title">IRetryAnalyzer — Auto-Retry Flaky Tests</span><span class="pill pill-orange">retry</span></div>
+      <div class="when-note">Use to automatically re-run a failed test up to N times before marking it as failed. Useful for flaky tests caused by network delays or animation timing issues.</div>
+<pre><span class="cm">// ── Step 1: Implement IRetryAnalyzer ──</span>
+<span class="kw">public class</span> <span class="tp">RetryAnalyzer</span> <span class="kw">implements</span> <span class="tp">IRetryAnalyzer</span> {
+    <span class="kw">private int</span> count = <span class="nm">0</span>;
+    <span class="kw">private static final int</span> MAX_RETRY = <span class="nm">2</span>;
+
+    <span class="cn">@Override</span>
+    <span class="kw">public boolean</span> <span class="mt">retry</span>(<span class="tp">ITestResult</span> result) {
+        <span class="kw">if</span> (count &lt; MAX_RETRY) {
+            count++;
+            <span class="tp">System</span>.out.<span class="mt">println</span>(<span class="st">"Retrying ["</span> + count + <span class="st">"] "</span>
+                + result.<span class="mt">getName</span>());
+            <span class="kw">return true</span>;  <span class="cm">// retry</span>
+        }
+        <span class="kw">return false</span>;  <span class="cm">// give up, mark FAILED</span>
+    }
+}
+
+<span class="cm">// ── Step 2: Attach to @Test ──</span>
+<span class="cn">@Test</span>(retryAnalyzer = <span class="tp">RetryAnalyzer</span>.<span class="kw">class</span>)
+<span class="kw">public void</span> <span class="mt">testFlaky</span>() { ... }
+
+<span class="cm">// ── Step 3: Apply globally via Listener ──</span>
+<span class="kw">public class</span> <span class="tp">RetryListener</span>
+    <span class="kw">implements</span> <span class="tp">IAnnotationTransformer</span> {
+    <span class="cn">@Override</span>
+    <span class="kw">public void</span> <span class="mt">transform</span>(<span class="tp">ITestAnnotation</span> ann,
+        <span class="tp">Class</span> cls, <span class="tp">Constructor</span> c, <span class="tp">Method</span> m) {
+        ann.<span class="mt">setRetryAnalyzer</span>(<span class="tp">RetryAnalyzer</span>.<span class="kw">class</span>);
+    }
+}
+<span class="cm">// Register in testng.xml — applies to ALL tests</span>
+&lt;listener class-name=<span class="st">"listeners.RetryListener"</span>/&gt;</pre>
+    </div>
+
+  </div>
+
+  <!-- ROW 6: ITestContext + Reporting -->
+  <div class="g2" style="margin-top:14px">
+
+    <div class="card">
+      <div class="card-top"><span class="card-title">ITestContext — Access Suite-Level Data</span><span class="pill pill-cyan">context</span></div>
+      <div class="when-note">Inject ITestContext into @Before/@After methods to access suite name, test name, passed/failed counts, and to share data between tests.</div>
+<pre><span class="cm">// ── Inject into any @Before/@After method ──</span>
+<span class="cn">@BeforeMethod</span>
+<span class="kw">public void</span> <span class="mt">setUp</span>(<span class="tp">ITestContext</span> ctx) {
+    <span class="tp">String</span> suiteName = ctx.<span class="mt">getSuite</span>().<span class="mt">getName</span>();
+    <span class="tp">String</span> testName  = ctx.<span class="mt">getName</span>();
+
+    <span class="cm">// Share data across tests in suite</span>
+    ctx.<span class="mt">setAttribute</span>(<span class="st">"authToken"</span>, <span class="st">"Bearer xyz"</span>);
+}
+
+<span class="cn">@Test</span>
+<span class="kw">public void</span> <span class="mt">testSomething</span>(<span class="tp">ITestContext</span> ctx) {
+    <span class="tp">String</span> token = (<span class="tp">String</span>) ctx.<span class="mt">getAttribute</span>(<span class="st">"authToken"</span>);
+}
+
+<span class="cn">@AfterSuite</span>
+<span class="kw">public void</span> <span class="mt">afterAll</span>(<span class="tp">ITestContext</span> ctx) {
+    <span class="kw">int</span> passed  = ctx.<span class="mt">getPassedTests</span>().<span class="mt">size</span>();
+    <span class="kw">int</span> failed  = ctx.<span class="mt">getFailedTests</span>().<span class="mt">size</span>();
+    <span class="kw">int</span> skipped = ctx.<span class="mt">getSkippedTests</span>().<span class="mt">size</span>();
+    <span class="tp">System</span>.out.<span class="mt">printf</span>(
+        <span class="st">"Results — Pass:%d Fail:%d Skip:%d%n"</span>,
+        passed, failed, skipped);
+}</pre>
+    </div>
+
+    <div class="card">
+      <div class="card-top"><span class="card-title">Useful TestNG Annotations You Must Know</span><span class="pill pill-yellow">misc</span></div>
+      <div class="when-note">Less commonly taught but very useful in real projects.</div>
+<pre><span class="cm">// ── @Factory — create test instances dynamically ──</span>
+<span class="cm">// Runs full test class once per dataset</span>
+<span class="cn">@Factory</span>(dataProvider = <span class="st">"browsers"</span>)
+<span class="kw">public</span> <span class="tp">Object</span>[] <span class="mt">createTests</span>(<span class="tp">String</span> browser) {
+    <span class="kw">return new</span> <span class="tp">Object</span>[] { <span class="kw">new</span> <span class="tp">LoginTest</span>(browser) };
+}
+
+<span class="cm">// ── @Test with method name in ITestResult ──</span>
+<span class="cn">@AfterMethod</span>
+<span class="kw">public void</span> <span class="mt">log</span>(<span class="tp">ITestResult</span> result) {
+    <span class="tp">String</span> testName = result.<span class="mt">getName</span>();
+    <span class="tp">String</span> className = result.<span class="mt">getTestClass</span>().<span class="mt">getName</span>();
+    <span class="kw">long</span> duration = result.<span class="mt">getEndMillis</span>()
+                   - result.<span class="mt">getStartMillis</span>();
+    <span class="tp">Object</span>[] params = result.<span class="mt">getParameters</span>(); <span class="cm">// data row</span>
+    <span class="kw">int</span> status = result.<span class="mt">getStatus</span>(); <span class="cm">// 1=pass 2=fail 3=skip</span>
+}
+
+<span class="cm">// ── @Test(successPercentage) ──</span>
+<span class="cm">// Pass if at least 80% of invocations succeed</span>
+<span class="cn">@Test</span>(invocationCount = <span class="nm">10</span>,
+      successPercentage = <span class="nm">80</span>)
+<span class="kw">public void</span> <span class="mt">testSometimesFlaky</span>() { ... }
+
+<span class="cm">// ── Skipping a test programmatically ──</span>
+<span class="kw">import</span> org.testng.SkipException;
+<span class="cn">@Test</span>
+<span class="kw">public void</span> <span class="mt">testConditional</span>() {
+    <span class="kw">if</span> (!featureEnabled) {
+        <span class="kw">throw new</span> <span class="tp">SkipException</span>(<span class="st">"Feature not enabled"</span>);
+    }
+    <span class="cm">// test continues only if feature is on</span>
+}</pre>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════ 16. POM -->
+<section class="sec" id="s-pom">
+  <div class="sec-head">
+    <span class="sec-icon">🏗️</span>
+    <span class="sec-title">Page Object Model — Complete Framework</span>
+    <span class="sec-when">The design pattern used in every professional Selenium project — learn this deeply</span>
+  </div>
+
+  <div class="banner banner-ok">
+    <span class="bi">✅</span>
+    <div><b>The Golden Rules of POM:</b> Pages hold locators + actions only. Tests hold assertions + test flow only. No assertions in page classes. No locators/findElement calls in test classes. Page methods return page objects (for chaining). Never call driver directly from a test class.</div>
+  </div>
+
+  <!-- Project structure diagram -->
+  <div class="card" style="margin-top:14px">
+    <div class="card-top"><span class="card-title">Project Folder Structure</span><span class="pill pill-yellow">layout</span></div>
+    <div class="when-note">Every POM project follows this structure. Know where each file type lives.</div>
+<pre><span class="cm">src/
+├── main/java/
+│   ├── pages/
+│   │   ├── BasePage.java          ← shared wait/js helpers
+│   │   ├── LoginPage.java         ← locators + actions for Login
+│   │   ├── HomePage.java          ← locators + actions for Home
+│   │   └── CartPage.java
+│   ├── utils/
+│   │   ├── DriverManager.java     ← ThreadLocal driver
+│   │   ├── ConfigReader.java      ← read config.properties
+│   │   └── ExcelUtils.java        ← read test data from Excel
+│   └── constants/
+│       └── AppConstants.java      ← URLs, timeouts, messages
+│
+└── test/java/
+    ├── base/
+    │   └── BaseTest.java          ← @BeforeMethod/@AfterMethod
+    ├── tests/
+    │   ├── LoginTest.java         ← @Test methods
+    │   ├── SearchTest.java
+    │   └── CheckoutTest.java
+    ├── listeners/
+    │   ├── TestListener.java      ← ITestListener
+    │   └── RetryAnalyzer.java     ← IRetryAnalyzer
+    └── testdata/
+        └── testdata.xlsx          ← Excel data files
+
+resources/
+├── config.properties              ← browser, baseUrl, timeout
+├── testng-smoke.xml               ← smoke suite
+└── testng-regression.xml          ← full suite</span></pre>
+  </div>
+
+  <!-- Row 1: BasePage + LoginPage -->
+  <div class="g2" style="margin-top:14px">
+
+    <div class="card">
+      <div class="card-top"><span class="card-title">BasePage.java — Shared Helpers</span><span class="pill pill-purple">base</span></div>
+      <div class="when-note">All page classes extend BasePage. Put every reusable helper here — click with wait, type with clear, getText, isVisible, scrollTo. Never duplicate these in individual page classes.</div>
+<pre><span class="kw">public class</span> <span class="tp">BasePage</span> {
+    <span class="kw">protected</span> <span class="tp">WebDriver</span>       driver;
+    <span class="kw">protected</span> <span class="tp">WebDriverWait</span>   wait;
+    <span class="kw">protected</span> <span class="tp">JavascriptExecutor</span> js;
+    <span class="kw">protected</span> <span class="tp">Actions</span>         actions;
+
+    <span class="kw">public</span> <span class="mt">BasePage</span>(<span class="tp">WebDriver</span> driver) {
+        <span class="kw">this</span>.driver  = driver;
+        <span class="kw">this</span>.wait    = <span class="kw">new</span> <span class="tp">WebDriverWait</span>(driver,
+            <span class="tp">Duration</span>.<span class="mt">ofSeconds</span>(<span class="nm">15</span>));
+        <span class="kw">this</span>.js      = (<span class="tp">JavascriptExecutor</span>) driver;
+        <span class="kw">this</span>.actions = <span class="kw">new</span> <span class="tp">Actions</span>(driver);
+        <span class="tp">PageFactory</span>.<span class="mt">initElements</span>(driver, <span class="kw">this</span>);
+    }
+
+    <span class="cm">// ── Wait helpers ──</span>
+    <span class="kw">protected</span> <span class="tp">WebElement</span> <span class="mt">waitVisible</span>(<span class="tp">By</span> by) {
+        <span class="kw">return</span> wait.<span class="mt">until</span>(<span class="cn">ExpectedConditions</span>
+            .<span class="mt">visibilityOfElementLocated</span>(by));
+    }
+    <span class="kw">protected</span> <span class="tp">WebElement</span> <span class="mt">waitClickable</span>(<span class="tp">By</span> by) {
+        <span class="kw">return</span> wait.<span class="mt">until</span>(<span class="cn">ExpectedConditions</span>
+            .<span class="mt">elementToBeClickable</span>(by));
+    }
+    <span class="kw">protected void</span> <span class="mt">waitForUrl</span>(<span class="tp">String</span> partial) {
+        wait.<span class="mt">until</span>(<span class="cn">ExpectedConditions</span>
+            .<span class="mt">urlContains</span>(partial));
+    }
+
+    <span class="cm">// ── Action helpers ──</span>
+    <span class="kw">protected void</span> <span class="mt">click</span>(<span class="tp">By</span> by) {
+        <span class="mt">waitClickable</span>(by).<span class="mt">click</span>();
+    }
+    <span class="kw">protected void</span> <span class="mt">type</span>(<span class="tp">By</span> by, <span class="tp">String</span> text) {
+        <span class="tp">WebElement</span> el = <span class="mt">waitVisible</span>(by);
+        el.<span class="mt">clear</span>();
+        el.<span class="mt">sendKeys</span>(text);
+    }
+    <span class="kw">protected</span> <span class="tp">String</span> <span class="mt">getText</span>(<span class="tp">By</span> by) {
+        <span class="kw">return</span> <span class="mt">waitVisible</span>(by).<span class="mt">getText</span>().<span class="mt">trim</span>();
+    }
+    <span class="kw">protected boolean</span> <span class="mt">isVisible</span>(<span class="tp">By</span> by) {
+        <span class="kw">try</span> {
+            <span class="kw">return</span> driver.<span class="mt">findElement</span>(by).<span class="mt">isDisplayed</span>();
+        } <span class="kw">catch</span> (<span class="tp">NoSuchElementException</span> e) {
+            <span class="kw">return false</span>;
+        }
+    }
+    <span class="kw">protected void</span> <span class="mt">scrollTo</span>(<span class="tp">By</span> by) {
+        js.<span class="mt">executeScript</span>(
+            <span class="st">"arguments[0].scrollIntoView({block:'center'});"</span>,
+            driver.<span class="mt">findElement</span>(by));
+    }
+    <span class="kw">protected void</span> <span class="mt">hover</span>(<span class="tp">By</span> by) {
+        actions.<span class="mt">moveToElement</span>(driver.<span class="mt">findElement</span>(by))
+               .<span class="mt">perform</span>();
+    }
+    <span class="kw">protected</span> <span class="tp">String</span> <span class="mt">getUrl</span>() {
+        <span class="kw">return</span> driver.<span class="mt">getCurrentUrl</span>();
+    }
+    <span class="kw">protected</span> <span class="tp">String</span> <span class="mt">getTitle</span>() {
+        <span class="kw">return</span> driver.<span class="mt">getTitle</span>();
+    }
+}</pre>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:14px">
+
+      <div class="card">
+        <div class="card-top"><span class="card-title">LoginPage.java</span><span class="pill pill-cyan">page class</span></div>
+        <div class="when-note">Every page has its own class. Locators at the top. Constructor calls super + PageFactory. Methods describe user actions. Methods return the next page (chaining).</div>
+<pre><span class="kw">public class</span> <span class="tp">LoginPage</span> <span class="kw">extends</span> <span class="tp">BasePage</span> {
+
+    <span class="cm">// ── Locators ──</span>
+    <span class="kw">private</span> <span class="tp">By</span> emailInput    = <span class="cn">By</span>.<span class="mt">id</span>(<span class="st">"email"</span>);
+    <span class="kw">private</span> <span class="tp">By</span> passwordInput = <span class="cn">By</span>.<span class="mt">id</span>(<span class="st">"password"</span>);
+    <span class="kw">private</span> <span class="tp">By</span> loginButton   = <span class="cn">By</span>.<span class="mt">cssSelector</span>(<span class="st">".btn-login"</span>);
+    <span class="kw">private</span> <span class="tp">By</span> errorMessage  = <span class="cn">By</span>.<span class="mt">cssSelector</span>(<span class="st">".alert-error"</span>);
+    <span class="kw">private</span> <span class="tp">By</span> forgotLink    = <span class="cn">By</span>.<span class="mt">linkText</span>(<span class="st">"Forgot Password?"</span>);
+
+    <span class="kw">public</span> <span class="mt">LoginPage</span>(<span class="tp">WebDriver</span> driver) {
+        <span class="kw">super</span>(driver);
+    }
+
+    <span class="cm">// ── Actions — return next page ──</span>
+    <span class="kw">public</span> <span class="tp">HomePage</span> <span class="mt">loginAs</span>(<span class="tp">String</span> email, <span class="tp">String</span> pwd) {
+        <span class="mt">type</span>(emailInput, email);
+        <span class="mt">type</span>(passwordInput, pwd);
+        <span class="mt">click</span>(loginButton);
+        <span class="mt">waitForUrl</span>(<span class="st">"dashboard"</span>);
+        <span class="kw">return new</span> <span class="tp">HomePage</span>(driver);
+    }
+
+    <span class="kw">public</span> <span class="tp">LoginPage</span> <span class="mt">loginExpectingFailure</span>(
+            <span class="tp">String</span> email, <span class="tp">String</span> pwd) {
+        <span class="mt">type</span>(emailInput, email);
+        <span class="mt">type</span>(passwordInput, pwd);
+        <span class="mt">click</span>(loginButton);
+        <span class="kw">return this</span>; <span class="cm">// stays on login page</span>
+    }
+
+    <span class="kw">public</span> <span class="tp">ForgotPasswordPage</span> <span class="mt">clickForgotPassword</span>() {
+        <span class="mt">click</span>(forgotLink);
+        <span class="kw">return new</span> <span class="tp">ForgotPasswordPage</span>(driver);
+    }
+
+    <span class="cm">// ── Getters / state checks ──</span>
+    <span class="kw">public</span> <span class="tp">String</span> <span class="mt">getErrorMessage</span>() {
+        <span class="kw">return</span> <span class="mt">getText</span>(errorMessage);
+    }
+    <span class="kw">public boolean</span> <span class="mt">isErrorDisplayed</span>() {
+        <span class="kw">return</span> <span class="mt">isVisible</span>(errorMessage);
+    }
+    <span class="kw">public boolean</span> <span class="mt">isLoaded</span>() {
+        <span class="kw">return</span> <span class="mt">isVisible</span>(loginButton);
+    }
+}</pre>
+      </div>
+
+      <div class="card">
+        <div class="card-top"><span class="card-title">@FindBy vs By — Which to Use?</span><span class="pill pill-yellow">locators</span></div>
+        <div class="when-note">Both work. @FindBy with PageFactory is cleaner for large pages. By fields give more control (reuse in loops, pass to helpers). Use By in BasePage helpers.</div>
+<pre><span class="cm">// ── Option 1: By field (recommended) ──</span>
+<span class="kw">private</span> <span class="tp">By</span> emailInput = <span class="cn">By</span>.<span class="mt">id</span>(<span class="st">"email"</span>);
+driver.<span class="mt">findElement</span>(emailInput).<span class="mt">sendKeys</span>(<span class="st">"x"</span>);
+<span class="cm">// ✓ Lazy — finds element fresh each time
+// ✓ Works with wait helpers (pass By to them)
+// ✓ No StaleElementReferenceException risk</span>
+
+<span class="cm">// ── Option 2: @FindBy + PageFactory ──</span>
+<span class="cn">@FindBy</span>(id = <span class="st">"email"</span>)
+<span class="kw">private</span> <span class="tp">WebElement</span> emailInput;
+<span class="cm">// Constructor must call:
+// PageFactory.initElements(driver, this);
+// ✓ Cleaner syntax
+// ✗ Can get StaleElementReferenceException
+//   if page re-renders after init</span>
+
+<span class="cm">// ── @FindBy locator types ──</span>
+<span class="cn">@FindBy</span>(id = <span class="st">"username"</span>)
+<span class="cn">@FindBy</span>(name = <span class="st">"email"</span>)
+<span class="cn">@FindBy</span>(css = <span class="st">".btn-primary"</span>)
+<span class="cn">@FindBy</span>(xpath = <span class="st">"//button[@type='submit']"</span>)
+<span class="cn">@FindBy</span>(linkText = <span class="st">"Sign In"</span>)
+<span class="cn">@FindBy</span>(tagName = <span class="st">"h1"</span>)
+
+<span class="cm">// ── List of elements ──</span>
+<span class="cn">@FindAll</span>({
+    <span class="cn">@FindBy</span>(css = <span class="st">".item"</span>),
+    <span class="cn">@FindBy</span>(css = <span class="st">".product"</span>)
+})
+<span class="kw">private</span> <span class="tp">List</span>&lt;<span class="tp">WebElement</span>&gt; allItems;</pre>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Row 2: BaseTest + ConfigReader -->
+  <div class="g2" style="margin-top:14px">
+
+    <div class="card">
+      <div class="card-top"><span class="card-title">BaseTest.java — Full Production Version</span><span class="pill pill-purple">base test</span></div>
+      <div class="when-note">Every test class extends this. It handles driver creation, teardown, screenshot on failure, and browser selection from config. Tests only write @Test methods.</div>
+<pre><span class="kw">public class</span> <span class="tp">BaseTest</span> {
+
+    <span class="kw">protected</span> <span class="tp">WebDriver</span> driver;
+    <span class="kw">private</span> <span class="tp">String</span> browser = <span class="tp">ConfigReader</span>.<span class="mt">get</span>(<span class="st">"browser"</span>);
+    <span class="kw">private</span> <span class="tp">String</span> baseUrl  = <span class="tp">ConfigReader</span>.<span class="mt">get</span>(<span class="st">"baseUrl"</span>);
+
+    <span class="cn">@BeforeMethod</span>
+    <span class="kw">public void</span> <span class="mt">setUp</span>(<span class="tp">Method</span> method) {
+        <span class="tp">System</span>.out.<span class="mt">println</span>(<span class="st">"\n▶ Running: "</span> + method.<span class="mt">getName</span>());
+        driver = <span class="mt">createDriver</span>(browser);
+        driver.<span class="mt">manage</span>().<span class="mt">window</span>().<span class="mt">maximize</span>();
+        driver.<span class="mt">manage</span>().<span class="mt">timeouts</span>()
+            .<span class="mt">pageLoadTimeout</span>(<span class="tp">Duration</span>.<span class="mt">ofSeconds</span>(<span class="nm">30</span>));
+        driver.<span class="mt">get</span>(baseUrl);
+    }
+
+    <span class="kw">private</span> <span class="tp">WebDriver</span> <span class="mt">createDriver</span>(<span class="tp">String</span> browser) {
+        <span class="kw">switch</span> (browser.<span class="mt">toLowerCase</span>()) {
+            <span class="kw">case</span> <span class="st">"firefox"</span>:
+                <span class="tp">WebDriverManager</span>.<span class="mt">firefoxdriver</span>().<span class="mt">setup</span>();
+                <span class="kw">return new</span> <span class="tp">FirefoxDriver</span>();
+            <span class="kw">case</span> <span class="st">"edge"</span>:
+                <span class="tp">WebDriverManager</span>.<span class="mt">edgedriver</span>().<span class="mt">setup</span>();
+                <span class="kw">return new</span> <span class="tp">EdgeDriver</span>();
+            <span class="kw">default</span>:
+                <span class="tp">WebDriverManager</span>.<span class="mt">chromedriver</span>().<span class="mt">setup</span>();
+                <span class="kw">return new</span> <span class="tp">ChromeDriver</span>();
+        }
+    }
+
+    <span class="cn">@AfterMethod</span>
+    <span class="kw">public void</span> <span class="mt">tearDown</span>(<span class="tp">ITestResult</span> result, <span class="tp">Method</span> method) {
+        <span class="kw">if</span> (result.<span class="mt">getStatus</span>() == <span class="cn">ITestResult</span>.FAILURE) {
+            <span class="mt">captureScreenshot</span>(method.<span class="mt">getName</span>());
+        }
+        <span class="kw">if</span> (driver != <span class="kw">null</span>) driver.<span class="mt">quit</span>();
+    }
+
+    <span class="kw">private void</span> <span class="mt">captureScreenshot</span>(<span class="tp">String</span> testName) {
+        <span class="kw">try</span> {
+            <span class="tp">File</span> src = ((<span class="tp">TakesScreenshot</span>) driver)
+                .<span class="mt">getScreenshotAs</span>(<span class="cn">OutputType</span>.FILE);
+            <span class="tp">String</span> path = <span class="st">"screenshots/"</span>
+                + testName + <span class="st">"_"</span>
+                + <span class="tp">System</span>.<span class="mt">currentTimeMillis</span>() + <span class="st">".png"</span>;
+            <span class="tp">FileUtils</span>.<span class="mt">copyFile</span>(src, <span class="kw">new</span> <span class="tp">File</span>(path));
+            <span class="tp">System</span>.out.<span class="mt">println</span>(<span class="st">"Screenshot: "</span> + path);
+        } <span class="kw">catch</span> (<span class="tp">IOException</span> e) {
+            e.<span class="mt">printStackTrace</span>();
+        }
+    }
+}</pre>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:14px">
+
+      <div class="card">
+        <div class="card-top"><span class="card-title">ConfigReader.java — No Hardcoding</span><span class="pill pill-orange">config</span></div>
+        <div class="when-note">All environment values (URL, browser, credentials, timeout) go in config.properties — never hardcoded in test code. Change environment by editing one file.</div>
+<pre><span class="cm">// ── config.properties ──</span>
+browser=chrome
+baseUrl=https://staging.myapp.com
+implicitWait=10
+pageLoadTimeout=30
+username=testuser@app.com
+password=TestPass123
+
+<span class="cm">// ── ConfigReader.java ──</span>
+<span class="kw">public class</span> <span class="tp">ConfigReader</span> {
+    <span class="kw">private static</span> <span class="tp">Properties</span> props;
+
+    <span class="kw">static</span> {
+        <span class="kw">try</span> {
+            props = <span class="kw">new</span> <span class="tp">Properties</span>();
+            <span class="tp">FileInputStream</span> fis = <span class="kw">new</span> <span class="tp">FileInputStream</span>(
+                <span class="st">"src/main/resources/config.properties"</span>);
+            props.<span class="mt">load</span>(fis);
+        } <span class="kw">catch</span> (<span class="tp">IOException</span> e) {
+            <span class="kw">throw new</span> <span class="tp">RuntimeException</span>(
+                <span class="st">"config.properties not found"</span>, e);
+        }
+    }
+
+    <span class="kw">public static</span> <span class="tp">String</span> <span class="mt">get</span>(<span class="tp">String</span> key) {
+        <span class="kw">return</span> props.<span class="mt">getProperty</span>(key);
+    }
+
+    <span class="kw">public static int</span> <span class="mt">getInt</span>(<span class="tp">String</span> key) {
+        <span class="kw">return</span> <span class="tp">Integer</span>.<span class="mt">parseInt</span>(<span class="mt">get</span>(key));
+    }
+}
+
+<span class="cm">// ── Usage anywhere ──</span>
+<span class="tp">String</span> url     = <span class="tp">ConfigReader</span>.<span class="mt">get</span>(<span class="st">"baseUrl"</span>);
+<span class="tp">String</span> browser = <span class="tp">ConfigReader</span>.<span class="mt">get</span>(<span class="st">"browser"</span>);
+<span class="kw">int</span>    timeout  = <span class="tp">ConfigReader</span>.<span class="mt">getInt</span>(<span class="st">"pageLoadTimeout"</span>);</pre>
+      </div>
+
+      <div class="card">
+        <div class="card-top"><span class="card-title">Page Chaining — Fluent Navigation</span><span class="pill pill-cyan">chaining</span></div>
+        <div class="when-note">Page methods return the next page object. This makes test code read like a user story and removes the need to create page objects manually between every step.</div>
+<pre><span class="cm">// ── Test reads like a user story ──</span>
+<span class="cn">@Test</span>
+<span class="kw">public void</span> <span class="mt">testCheckoutFlow</span>() {
+    <span class="tp">String</span> orderNum = <span class="kw">new</span> <span class="tp">LoginPage</span>(driver)
+        .<span class="mt">loginAs</span>(<span class="st">"user@test.com"</span>, <span class="st">"pass"</span>)  <span class="cm">// → HomePage</span>
+        .<span class="mt">searchProduct</span>(<span class="st">"Laptop"</span>)             <span class="cm">// → SearchPage</span>
+        .<span class="mt">selectFirstResult</span>()                <span class="cm">// → ProductPage</span>
+        .<span class="mt">addToCart</span>()                        <span class="cm">// → CartPage</span>
+        .<span class="mt">proceedToCheckout</span>()                <span class="cm">// → CheckoutPage</span>
+        .<span class="mt">placeOrder</span>()                       <span class="cm">// → OrderConfirmPage</span>
+        .<span class="mt">getOrderNumber</span>();
+
+    <span class="cn">Assert</span>.<span class="mt">assertNotNull</span>(orderNum,
+        <span class="st">"Order number should be generated"</span>);
+    <span class="cn">Assert</span>.<span class="mt">assertTrue</span>(orderNum.<span class="mt">startsWith</span>(<span class="st">"ORD-"</span>));
+}
+
+<span class="cm">// ── Each page method returns next page ──</span>
+<span class="kw">public class</span> <span class="tp">CartPage</span> <span class="kw">extends</span> <span class="tp">BasePage</span> {
+    <span class="kw">private</span> <span class="tp">By</span> checkoutBtn = <span class="cn">By</span>.<span class="mt">id</span>(<span class="st">"checkout"</span>);
+
+    <span class="kw">public</span> <span class="mt">CartPage</span>(<span class="tp">WebDriver</span> driver) { <span class="kw">super</span>(driver); }
+
+    <span class="kw">public</span> <span class="tp">CheckoutPage</span> <span class="mt">proceedToCheckout</span>() {
+        <span class="mt">click</span>(checkoutBtn);
+        <span class="kw">return new</span> <span class="tp">CheckoutPage</span>(driver);
+    }
+}</pre>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Row 3: Complete LoginTest + anti-patterns -->
+  <div class="g2" style="margin-top:14px">
+
+    <div class="card">
+      <div class="card-top"><span class="card-title">LoginTest.java — Complete Test Class</span><span class="pill pill-cyan">test</span></div>
+      <div class="when-note">This is what a complete, clean test class looks like. No driver calls. No locators. No waits. Pure test logic and assertions.</div>
+<pre><span class="cn">@Listeners</span>(<span class="tp">TestListener</span>.<span class="kw">class</span>)
+<span class="kw">public class</span> <span class="tp">LoginTest</span> <span class="kw">extends</span> <span class="tp">BaseTest</span> {
+
+    <span class="tp">LoginPage</span> loginPage;
+
+    <span class="cn">@BeforeMethod</span>
+    <span class="kw">public void</span> <span class="mt">initPage</span>() {
+        loginPage = <span class="kw">new</span> <span class="tp">LoginPage</span>(driver);
+    }
+
+    <span class="cn">@Test</span>(groups = <span class="st">"smoke"</span>, priority = <span class="nm">1</span>,
+          description = <span class="st">"Valid credentials redirect to dashboard"</span>)
+    <span class="kw">public void</span> <span class="mt">testValidLogin</span>() {
+        <span class="tp">HomePage</span> home = loginPage
+            .<span class="mt">loginAs</span>(<span class="st">"admin@site.com"</span>, <span class="st">"admin123"</span>);
+        <span class="cn">Assert</span>.<span class="mt">assertTrue</span>(home.<span class="mt">isLoaded</span>());
+        <span class="cn">Assert</span>.<span class="mt">assertEquals</span>(home.<span class="mt">getWelcomeMessage</span>(),
+            <span class="st">"Welcome, Admin"</span>);
+    }
+
+    <span class="cn">@Test</span>(groups = <span class="st">"regression"</span>, priority = <span class="nm">2</span>,
+          description = <span class="st">"Wrong password shows error"</span>)
+    <span class="kw">public void</span> <span class="mt">testInvalidPassword</span>() {
+        loginPage.<span class="mt">loginExpectingFailure</span>(<span class="st">"admin@site.com"</span>, <span class="st">"wrong"</span>);
+        <span class="cn">Assert</span>.<span class="mt">assertTrue</span>(loginPage.<span class="mt">isErrorDisplayed</span>(),
+            <span class="st">"Error banner must show"</span>);
+        <span class="cn">Assert</span>.<span class="mt">assertEquals</span>(loginPage.<span class="mt">getErrorMessage</span>(),
+            <span class="st">"Invalid email or password"</span>);
+    }
+
+    <span class="cn">@Test</span>(groups = <span class="st">"regression"</span>, priority = <span class="nm">3</span>,
+          dataProvider = <span class="st">"invalidLogins"</span>)
+    <span class="kw">public void</span> <span class="mt">testVariousInvalidInputs</span>(
+            <span class="tp">String</span> email, <span class="tp">String</span> pass, <span class="tp">String</span> expectedErr) {
+        loginPage.<span class="mt">loginExpectingFailure</span>(email, pass);
+        <span class="tp">SoftAssert</span> soft = <span class="kw">new</span> <span class="tp">SoftAssert</span>();
+        soft.<span class="mt">assertTrue</span>(loginPage.<span class="mt">isErrorDisplayed</span>());
+        soft.<span class="mt">assertEquals</span>(loginPage.<span class="mt">getErrorMessage</span>(), expectedErr);
+        soft.<span class="mt">assertAll</span>();
+    }
+
+    <span class="cn">@DataProvider</span>(name = <span class="st">"invalidLogins"</span>)
+    <span class="kw">public</span> <span class="tp">Object</span>[][] <span class="mt">invalidLoginData</span>() {
+        <span class="kw">return new</span> <span class="tp">Object</span>[][] {
+            {<span class="st">""</span>,           <span class="st">""</span>,      <span class="st">"Email is required"</span>},
+            {<span class="st">"notanemail"</span>, <span class="st">"pass"</span>, <span class="st">"Enter a valid email"</span>},
+            {<span class="st">"x@x.com"</span>,    <span class="st">""</span>,      <span class="st">"Password is required"</span>}
+        };
+    }
+}</pre>
+    </div>
+
+    <div class="card">
+      <div class="card-top"><span class="card-title">POM Anti-Patterns — What NOT To Do</span><span class="pill pill-red">avoid</span></div>
+      <div class="when-note">These are the most common POM mistakes. Recognising and fixing them makes your framework maintainable.</div>
+      <div class="compare">
+        <div class="compare-col">
+          <div class="compare-label bad">❌ Wrong — Breaks POM</div>
+<pre style="font-size:11.5px;padding:12px 14px;background:rgba(248,113,113,.04);color:var(--text)"><span class="cm">// Locator in test class</span>
+<span class="cn">@Test</span>
+<span class="kw">void</span> <span class="mt">test</span>() {
+  driver.<span class="mt">findElement</span>(
+    <span class="cn">By</span>.<span class="mt">id</span>(<span class="st">"email"</span>))
+    .<span class="mt">sendKeys</span>(<span class="st">"x"</span>);
+}
+
+<span class="cm">// Assert in page class</span>
+<span class="kw">public void</span> <span class="mt">login</span>() {
+  loginBtn.<span class="mt">click</span>();
+  <span class="cn">Assert</span>.<span class="mt">assertTrue</span>(
+    homePage.<span class="mt">isDisplayed</span>());
+}
+
+<span class="cm">// driver.quit() in page</span>
+<span class="kw">public void</span> <span class="mt">logout</span>() {
+  logoutBtn.<span class="mt">click</span>();
+  driver.<span class="mt">quit</span>();
+}
+
+<span class="cm">// Hardcoded URL in test</span>
+driver.<span class="mt">get</span>(
+  <span class="st">"http://localhost:8080"</span>);</pre>
+        </div>
+        <div class="compare-col" style="border-left:1px solid var(--border)">
+          <div class="compare-label good">✅ Right — Follows POM</div>
+<pre style="font-size:11.5px;padding:12px 14px;background:rgba(74,222,128,.04);color:var(--text)"><span class="cm">// Only page objects in tests</span>
+<span class="cn">@Test</span>
+<span class="kw">void</span> <span class="mt">test</span>() {
+  loginPage.<span class="mt">typeEmail</span>(<span class="st">"x"</span>);
+}
+
+<span class="cm">// Page returns next page</span>
+<span class="kw">public</span> <span class="tp">HomePage</span> <span class="mt">login</span>() {
+  loginBtn.<span class="mt">click</span>();
+  <span class="kw">return new</span> <span class="tp">HomePage</span>(driver);
+  <span class="cm">// test will assert</span>
+}
+
+<span class="cm">// Teardown in BaseTest</span>
+<span class="cn">@AfterMethod</span>
+<span class="kw">public void</span> <span class="mt">tearDown</span>() {
+  driver.<span class="mt">quit</span>();
+}
+
+<span class="cm">// URL from config</span>
+driver.<span class="mt">get</span>(
+  <span class="tp">ConfigReader</span>.<span class="mt">get</span>(<span class="st">"baseUrl"</span>));</pre>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════ 17. EXCEPTIONS -->
+<section class="sec" id="s-exceptions">
+  <div class="sec-head">
+    <span class="sec-icon">🐛</span>
+    <span class="sec-title">Common Exceptions & How to Fix Them</span>
+    <span class="sec-when">What to do when your test fails with one of these</span>
+  </div>
+  <div class="card g-full">
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr><th>Exception</th><th>Why It Happens</th><th>How to Fix</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="exc">NoSuchElementException</td>
+            <td class="cause">Element not in DOM yet, wrong locator, inside an iframe</td>
+            <td class="fix">Add ExplicitWait (presenceOfElementLocated); verify locator in DevTools; check if element is in an iframe and switch first</td>
+          </tr>
+          <tr>
+            <td class="exc">ElementNotInteractableException</td>
+            <td class="cause">Element in DOM but not visible or behind another element</td>
+            <td class="fix">Wait for visibilityOf; scrollIntoView via JS; wait for overlay/modal to close</td>
+          </tr>
+          <tr>
+            <td class="exc">StaleElementReferenceException</td>
+            <td class="cause">Page re-rendered after you found the element — reference is now dead</td>
+            <td class="fix">Re-find element after any page action. For loops, use the By locator and re-find each iteration</td>
+          </tr>
+          <tr>
+            <td class="exc">ElementClickInterceptedException</td>
+            <td class="cause">Something (modal, cookie banner, sticky header) is covering the element</td>
+            <td class="fix">Close the overlay first; scrollIntoView; use JS click as last resort</td>
+          </tr>
+          <tr>
+            <td class="exc">TimeoutException</td>
+            <td class="cause">ExpectedCondition not met before timeout expired</td>
+            <td class="fix">Increase timeout; verify the condition itself (correct locator? right condition type?); check page is actually loading</td>
+          </tr>
+          <tr>
+            <td class="exc">NoAlertPresentException</td>
+            <td class="cause">Tried to switch to alert before it appeared</td>
+            <td class="fix">Use wait.until(ExpectedConditions.alertIsPresent()) before switchTo().alert()</td>
+          </tr>
+          <tr>
+            <td class="exc">NoSuchWindowException</td>
+            <td class="cause">Tried to switch to a window handle that no longer exists</td>
+            <td class="fix">Re-fetch getWindowHandles(); don't store handles across page navigations</td>
+          </tr>
+          <tr>
+            <td class="exc">NoSuchFrameException</td>
+            <td class="cause">Frame name/id is wrong or frame not loaded yet</td>
+            <td class="fix">Use frameToBeAvailableAndSwitchToIt(); verify frame name in page source</td>
+          </tr>
+          <tr>
+            <td class="exc">InvalidSelectorException</td>
+            <td class="cause">CSS or XPath syntax is wrong</td>
+            <td class="fix">Test your selector in browser DevTools console: $("css") or $x("xpath")</td>
+          </tr>
+          <tr>
+            <td class="exc">SessionNotCreatedException</td>
+            <td class="cause">ChromeDriver version doesn't match Chrome browser version</td>
+            <td class="fix">Use WebDriverManager — it auto-matches versions</td>
+          </tr>
+          <tr>
+            <td class="exc">MoveTargetOutOfBoundsException</td>
+            <td class="cause">Actions.moveToElement target is not in viewport</td>
+            <td class="fix">Scroll element into view first using JS or actions.scrollToElement()</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════ 18. IMPORTS -->
+<section class="sec" id="s-imports">
+  <div class="sec-head">
+    <span class="sec-icon">📥</span>
+    <span class="sec-title">All Imports — Copy-Paste Ready</span>
+    <span class="sec-when">Paste at the top of any Selenium test file</span>
+  </div>
+  <div class="card">
+<pre><span class="cm">// ── WebDriver core ──</span>
+<span class="kw">import</span> org.openqa.selenium.*;
+<span class="kw">import</span> org.openqa.selenium.WebDriver;
+<span class="kw">import</span> org.openqa.selenium.WebElement;
+
+<span class="cm">// ── Browsers ──</span>
+<span class="kw">import</span> org.openqa.selenium.chrome.ChromeDriver;
+<span class="kw">import</span> org.openqa.selenium.chrome.ChromeOptions;
+<span class="kw">import</span> org.openqa.selenium.firefox.FirefoxDriver;
+<span class="kw">import</span> org.openqa.selenium.firefox.FirefoxOptions;
+<span class="kw">import</span> org.openqa.selenium.edge.EdgeDriver;
+
+<span class="cm">// ── Waits ──</span>
+<span class="kw">import</span> org.openqa.selenium.support.ui.WebDriverWait;
+<span class="kw">import</span> org.openqa.selenium.support.ui.ExpectedConditions;
+<span class="kw">import</span> org.openqa.selenium.support.ui.FluentWait;
+<span class="kw">import</span> org.openqa.selenium.support.ui.Wait;
+
+<span class="cm">// ── Interactions ──</span>
+<span class="kw">import</span> org.openqa.selenium.interactions.Actions;
+<span class="kw">import</span> org.openqa.selenium.JavascriptExecutor;
+
+<span class="cm">// ── Extras ──</span>
+<span class="kw">import</span> org.openqa.selenium.support.ui.Select;
+<span class="kw">import</span> org.openqa.selenium.TakesScreenshot;
+<span class="kw">import</span> org.openqa.selenium.OutputType;
+<span class="kw">import</span> org.openqa.selenium.WindowType;
+<span class="kw">import</span> org.openqa.selenium.Alert;
+<span class="kw">import</span> org.openqa.selenium.Cookie;
+<span class="kw">import</span> org.openqa.selenium.Dimension;
+<span class="kw">import</span> org.openqa.selenium.Point;
+
+<span class="cm">// ── Page Object ──</span>
+<span class="kw">import</span> org.openqa.selenium.support.FindBy;
+<span class="kw">import</span> org.openqa.selenium.support.PageFactory;
+
+<span class="cm">// ── Exceptions (for FluentWait ignoring) ──</span>
+<span class="kw">import</span> org.openqa.selenium.NoSuchElementException;
+<span class="kw">import</span> org.openqa.selenium.StaleElementReferenceException;
+<span class="kw">import</span> org.openqa.selenium.TimeoutException;
+<span class="kw">import</span> org.openqa.selenium.ElementClickInterceptedException;
+
+<span class="cm">// ── WebDriverManager ──</span>
+<span class="kw">import</span> io.github.bonigarcia.wdm.WebDriverManager;
+
+<span class="cm">// ── TestNG ──</span>
+<span class="kw">import</span> org.testng.Assert;
+<span class="kw">import</span> org.testng.asserts.SoftAssert;
+<span class="kw">import</span> org.testng.annotations.*;
+<span class="kw">import</span> org.testng.ITestResult;
+
+<span class="cm">// ── Java utils ──</span>
+<span class="kw">import</span> java.time.Duration;
+<span class="kw">import</span> java.util.*;
+<span class="kw">import</span> java.io.File;
+<span class="kw">import</span> java.io.IOException;
+<span class="kw">import</span> org.apache.commons.io.FileUtils;</pre>
+  </div>
+</section>
+
+</main>
+
+<footer>Selenium 4 · Java · TestNG · WebDriverManager — open in any browser · keep it bookmarked</footer>
+
+<script>
+// ── Theme toggle ──
+function toggleTheme() {
+  const isLight = document.body.classList.toggle('light');
+  document.getElementById('toggle-label').textContent = isLight ? 'Dark' : 'Light';
+  localStorage.setItem('theme', isLight ? 'light' : 'dark');
+}
+(function() {
+  const saved = localStorage.getItem('theme');
+  if (saved === 'light') {
+    document.body.classList.add('light');
+    const lbl = document.getElementById('toggle-label');
+    if (lbl) lbl.textContent = 'Dark';
+  }
+})();
+
+// ── Nav highlight ──
+const links = document.querySelectorAll('.nav-bar a');
+const secs  = document.querySelectorAll('section[id]');
+
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      links.forEach(a => a.classList.remove('on'));
+      const a = document.querySelector(`.nav-bar a[href="#${e.target.id}"]`);
+      if (a) { a.classList.add('on'); a.scrollIntoView({block:'nearest',inline:'center'}); }
+    }
+  });
+}, { rootMargin: '-20% 0px -70% 0px' });
+
+secs.forEach(s => obs.observe(s));
+
+links.forEach(a => a.addEventListener('click', e => {
+  e.preventDefault();
+  document.querySelector(a.getAttribute('href'))
+    .scrollIntoView({ behavior: 'smooth', block: 'start' });
+}));
+</script>
+</body>
+</html>
